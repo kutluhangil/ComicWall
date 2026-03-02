@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart, Menu, X } from "lucide-react";
+import { ShoppingCart, Menu, X, Sun, Moon } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useState } from "react";
+import { useTheme } from "next-themes";
 
 const SiteHeader = () => {
   const { totalItems } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
@@ -21,6 +23,13 @@ const SiteHeader = () => {
         </nav>
 
         <div className="flex items-center gap-4">
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="text-foreground hover:text-primary transition-colors p-1"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
           <Link to="/cart" className="relative text-foreground hover:text-primary transition-colors">
             <ShoppingCart className="w-5 h-5" />
             {totalItems > 0 && (
