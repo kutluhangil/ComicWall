@@ -40,6 +40,40 @@
     --glow-blue: 220 90% 56%;
     --glow-yellow: 45 100% 55%;
   }
+
+  .light {
+    --background: 0 0% 98%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 0 85% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 90% 52%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 93%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 45 100% 50%;
+    --accent-foreground: 0 0% 8%;
+
+    --destructive: 0 84% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 0 85% 50%;
+
+    --glow-red: 0 85% 50%;
+    --glow-blue: 220 90% 52%;
+    --glow-yellow: 45 100% 50%;
+  }
 }
 
 @layer base {
@@ -70,5 +104,72 @@
     @apply bg-clip-text text-transparent;
     background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
   }
+
+  /* Shimmer animation for "Superpower" text */
+  .text-shimmer {
+    @apply bg-clip-text text-transparent;
+    background-size: 200% 100%;
+    background-image: linear-gradient(
+      90deg,
+      hsl(var(--primary)) 0%,
+      hsl(var(--accent)) 25%,
+      hsl(var(--primary)) 50%,
+      hsl(var(--accent)) 75%,
+      hsl(var(--primary)) 100%
+    );
+    animation: shimmer 3s linear infinite;
+  }
+
+  /* Hero background zoom */
+  .animate-hero-zoom {
+    animation: hero-zoom 20s ease-in-out infinite alternate;
+  }
+
+  /* Floating particles */
+  .animate-particle {
+    animation: float-particle var(--duration, 6s) ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
+  }
+
+  /* Pulse glow for CTA */
+  .animate-pulse-glow {
+    animation: pulse-glow 2.5s ease-in-out infinite;
+  }
 }
 
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes hero-zoom {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.08); }
+}
+
+@keyframes float-particle {
+  0% {
+    transform: translateY(0) translateX(0) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(-10vh) translateX(5px) scale(1);
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-80vh) translateX(-10px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px hsl(var(--primary) / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px hsl(var(--primary) / 0.5), 0 0 50px hsl(var(--primary) / 0.2);
+  }
+}
