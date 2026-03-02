@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { products, SIZES } from "@/data/products";
 import SiteHeader from "@/components/SiteHeader";
@@ -22,10 +22,10 @@ const Cart = () => {
 
   return (
     <>
-      <SEO title="Cart — ComicWall" description="Your shopping cart." canonicalUrl="/cart" />
+      <SEO title="Shopping Cart — ComicWall" description="Your shopping cart." canonicalUrl="/cart" />
       <SiteHeader />
-      <main className="pt-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 min-h-screen">
-        <h1 className="font-bebas text-5xl tracking-wide text-foreground mb-8">Your Cart</h1>
+      <main className="pt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 min-h-screen">
+        <h1 className="font-bebas text-5xl tracking-wide text-foreground mb-8 italic">Shopping Cart</h1>
 
         {cartProducts.length === 0 ? (
           <div className="text-center py-20">
@@ -36,16 +36,17 @@ const Cart = () => {
             </Link>
           </div>
         ) : (
-          <>
-            <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Cart Items */}
+            <div className="lg:col-span-2 space-y-4">
               {cartProducts.map((cp) => (
-                <div key={`${cp.productId}-${cp.size}`} className="flex gap-4 bg-card border border-border rounded-lg p-4">
+                <div key={`${cp.productId}-${cp.size}`} className="flex gap-4 bg-card border border-border rounded-lg p-4 items-center">
                   <Link to={`/product/${cp.product.slug}`} className="w-20 h-28 rounded overflow-hidden flex-shrink-0">
                     <img src={cp.product.image} alt={cp.product.title} className="w-full h-full object-cover" />
                   </Link>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bebas text-xl tracking-wide text-foreground">{cp.product.title}</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">{cp.sizeLabel}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Size: {cp.sizeLabel}</p>
                     <div className="flex items-center gap-3 mt-3">
                       <div className="flex items-center border border-border rounded-md">
                         <button onClick={() => updateQuantity(cp.productId, cp.size as any, cp.quantity - 1)} className="px-2 py-1 text-foreground hover:bg-muted transition-colors">
@@ -56,31 +57,45 @@ const Cart = () => {
                           <Plus className="w-3 h-3" />
                         </button>
                       </div>
-                      <button onClick={() => removeItem(cp.productId, cp.size as any)} className="text-muted-foreground hover:text-destructive transition-colors">
+                      <button onClick={() => removeItem(cp.productId, cp.size as any)} className="text-muted-foreground hover:text-destructive transition-colors ml-auto">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <p className="font-semibold text-foreground">€{cp.lineTotal.toFixed(2)}</p>
+                    <p className="font-semibold text-foreground text-lg">€{cp.lineTotal.toFixed(2)}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-6 mt-8">
-              <div className="flex items-center justify-between mb-6">
-                <span className="text-sm uppercase tracking-widest text-muted-foreground">Total</span>
-                <span className="font-bebas text-3xl text-foreground">€{total.toFixed(2)}</span>
+            {/* Order Summary */}
+            <div className="lg:col-span-1">
+              <div className="bg-card border border-border rounded-lg p-6 sticky top-24">
+                <h2 className="font-bebas text-2xl tracking-wide text-foreground mb-6">Order Summary</h2>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="text-foreground font-medium">€{total.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Shipping</span>
+                    <span className="text-accent font-medium">Free</span>
+                  </div>
+                  <div className="border-t border-border pt-3 mt-3 flex justify-between items-center">
+                    <span className="text-foreground font-semibold">Total</span>
+                    <span className="font-bebas text-3xl text-primary">€{total.toFixed(2)}</span>
+                  </div>
+                </div>
+                <Link
+                  to="/checkout"
+                  className="mt-6 flex items-center justify-center gap-2 w-full bg-primary text-primary-foreground px-6 py-3 text-sm uppercase tracking-widest font-bold rounded-full hover:bg-primary/90 transition-colors"
+                >
+                  Proceed to Checkout <ArrowRight className="w-4 h-4" />
+                </Link>
               </div>
-              <Link
-                to="/checkout"
-                className="block w-full bg-primary text-primary-foreground text-center px-6 py-3 text-sm uppercase tracking-widest font-bold rounded-md hover:bg-primary/90 transition-colors"
-              >
-                Proceed to Checkout
-              </Link>
             </div>
-          </>
+          </div>
         )}
       </main>
       <SiteFooter />
