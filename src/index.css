@@ -6,73 +6,73 @@
 
 @layer base {
   :root {
-    --background: 0 0% 8%;
-    --foreground: 0 0% 95%;
+    --background: 240 5% 6%;
+    --foreground: 0 0% 96%;
 
-    --card: 0 0% 12%;
-    --card-foreground: 0 0% 95%;
+    --card: 240 4% 10%;
+    --card-foreground: 0 0% 96%;
 
-    --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 240 4% 10%;
+    --popover-foreground: 0 0% 96%;
 
-    --primary: 0 85% 55%;
+    --primary: 0 90% 58%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 90% 56%;
+    --secondary: 220 95% 60%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 18%;
+    --muted: 240 4% 16%;
     --muted-foreground: 0 0% 55%;
 
-    --accent: 45 100% 55%;
-    --accent-foreground: 0 0% 8%;
+    --accent: 42 100% 58%;
+    --accent-foreground: 0 0% 6%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 0 85% 55%;
+    --border: 240 4% 18%;
+    --input: 240 4% 18%;
+    --ring: 0 90% 58%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
 
-    --glow-red: 0 85% 55%;
-    --glow-blue: 220 90% 56%;
-    --glow-yellow: 45 100% 55%;
+    --glow-red: 0 90% 58%;
+    --glow-blue: 220 95% 60%;
+    --glow-yellow: 42 100% 58%;
   }
 
   .light {
     --background: 0 0% 98%;
-    --foreground: 0 0% 10%;
+    --foreground: 240 10% 8%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    --card-foreground: 240 10% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
+    --popover-foreground: 240 10% 8%;
 
-    --primary: 0 85% 50%;
+    --primary: 0 90% 52%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 90% 52%;
+    --secondary: 220 95% 55%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 93%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 240 5% 93%;
+    --muted-foreground: 240 5% 38%;
 
-    --accent: 45 100% 50%;
-    --accent-foreground: 0 0% 8%;
+    --accent: 42 100% 52%;
+    --accent-foreground: 0 0% 6%;
 
     --destructive: 0 84% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 85%;
-    --input: 0 0% 85%;
-    --ring: 0 85% 50%;
+    --border: 240 5% 88%;
+    --input: 240 5% 88%;
+    --ring: 0 90% 52%;
 
-    --glow-red: 0 85% 50%;
-    --glow-blue: 220 90% 52%;
-    --glow-yellow: 45 100% 50%;
+    --glow-red: 0 90% 52%;
+    --glow-blue: 220 95% 55%;
+    --glow-yellow: 42 100% 52%;
   }
 }
 
