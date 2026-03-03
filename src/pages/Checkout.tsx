@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { products, SIZES } from "@/data/products";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -11,6 +12,7 @@ const Checkout = () => {
   const { items, clearCart } = useCart();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const { t } = useLanguage();
 
   const cartProducts = items.map((item) => {
     const product = products.find((p) => p.id === item.productId);
@@ -25,7 +27,7 @@ const Checkout = () => {
     setLoading(true);
     setTimeout(() => {
       clearCart();
-      toast({ title: "Order placed!", description: "Thank you for your purchase." });
+      toast({ title: t("checkout.orderPlaced"), description: t("checkout.orderThanks") });
       navigate("/");
     }, 1500);
   };
@@ -34,9 +36,9 @@ const Checkout = () => {
     return (
       <>
         <SiteHeader />
-        <main className="pt-32 text-center min-h-screen">
-          <p className="text-muted-foreground mb-4">Your cart is empty.</p>
-          <Link to="/shop" className="text-primary">Go shopping</Link>
+        <main className="pt-32 text-center min-h-screen px-5">
+          <p className="text-muted-foreground mb-4">{t("checkout.emptyCart")}</p>
+          <Link to="/shop" className="text-primary">{t("checkout.goShopping")}</Link>
         </main>
         <SiteFooter />
       </>
@@ -47,30 +49,29 @@ const Checkout = () => {
     <>
       <SEO title="Checkout — ComicWall" description="Complete your order." canonicalUrl="/checkout" />
       <SiteHeader />
-      <main className="pt-24 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 min-h-screen">
-        <h1 className="font-bebas text-5xl tracking-wide text-foreground mb-8">Checkout</h1>
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-5 gap-10">
-          {/* Shipping */}
+      <main className="pt-24 max-w-5xl mx-auto px-5 sm:px-6 lg:px-8 pb-20 min-h-screen">
+        <h1 className="font-bebas text-4xl sm:text-5xl tracking-wide text-foreground mb-8">{t("checkout.title")}</h1>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-5 gap-8 sm:gap-10">
           <div className="lg:col-span-3 space-y-6">
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h2 className="font-bebas text-2xl tracking-wide text-foreground mb-4">Shipping Details</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <input required placeholder="First Name" className="bg-muted border border-border rounded-md px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
-                <input required placeholder="Last Name" className="bg-muted border border-border rounded-md px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
-                <input required placeholder="Email" type="email" className="sm:col-span-2 bg-muted border border-border rounded-md px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
-                <input required placeholder="Address" className="sm:col-span-2 bg-muted border border-border rounded-md px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
-                <input required placeholder="City" className="bg-muted border border-border rounded-md px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
-                <input required placeholder="Postal Code" className="bg-muted border border-border rounded-md px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
-                <input required placeholder="Country" className="sm:col-span-2 bg-muted border border-border rounded-md px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+            <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
+              <h2 className="font-bebas text-2xl tracking-wide text-foreground mb-4">{t("checkout.shipping")}</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <input required placeholder={t("checkout.firstName")} className="bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+                <input required placeholder={t("checkout.lastName")} className="bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+                <input required placeholder={t("checkout.email")} type="email" className="sm:col-span-2 bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+                <input required placeholder={t("checkout.address")} className="sm:col-span-2 bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+                <input required placeholder={t("checkout.city")} className="bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+                <input required placeholder={t("checkout.postalCode")} className="bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+                <input required placeholder={t("checkout.country")} className="sm:col-span-2 bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
               </div>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h2 className="font-bebas text-2xl tracking-wide text-foreground mb-4">Payment</h2>
+            <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
+              <h2 className="font-bebas text-2xl tracking-wide text-foreground mb-4">{t("checkout.payment")}</h2>
               <div className="space-y-3">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="radio" name="payment" defaultChecked className="accent-primary" />
-                  <span className="text-sm text-foreground">Credit Card</span>
+                  <span className="text-sm text-foreground">{t("checkout.creditCard")}</span>
                 </label>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="radio" name="payment" className="accent-primary" />
@@ -80,10 +81,9 @@ const Checkout = () => {
             </div>
           </div>
 
-          {/* Order Summary */}
           <div className="lg:col-span-2">
-            <div className="bg-card border border-border rounded-lg p-6 sticky top-24">
-              <h2 className="font-bebas text-2xl tracking-wide text-foreground mb-4">Order Summary</h2>
+            <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 sticky top-24">
+              <h2 className="font-bebas text-2xl tracking-wide text-foreground mb-4">{t("checkout.orderSummary")}</h2>
               <div className="space-y-3">
                 {cartProducts.map((cp: any) => (
                   <div key={`${cp.productId}-${cp.size}`} className="flex justify-between text-sm">
@@ -95,15 +95,15 @@ const Checkout = () => {
                 ))}
               </div>
               <div className="border-t border-border mt-4 pt-4 flex justify-between">
-                <span className="text-sm uppercase tracking-widest text-muted-foreground">Total</span>
+                <span className="text-sm uppercase tracking-widest text-muted-foreground">{t("checkout.total")}</span>
                 <span className="font-bebas text-2xl text-foreground">€{total.toFixed(2)}</span>
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-6 w-full bg-primary text-primary-foreground px-6 py-3 text-sm uppercase tracking-widest font-bold rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+                className="mt-6 w-full bg-primary text-primary-foreground px-6 py-3.5 text-sm uppercase tracking-widest font-bold rounded-2xl hover:bg-primary/90 transition-colors disabled:opacity-50"
               >
-                {loading ? "Processing..." : "Place Order"}
+                {loading ? t("checkout.processing") : t("checkout.placeOrder")}
               </button>
             </div>
           </div>
