@@ -1,9 +1,12 @@
-import { Link } from "react-router-dom";
-import { ShoppingCart, Eye } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ShoppingCart, Eye, Heart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
+import { useWishlist } from "@/context/WishlistContext";
 import type { Product } from "@/data/products";
 import { motion } from "motion/react";
+import { toast } from "@/hooks/use-toast";
 
 interface ProductCardProps {
   product: Product;
@@ -12,6 +15,22 @@ interface ProductCardProps {
 const ProductCard = ({ product }: ProductCardProps) => {
   const { addItem } = useCart();
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const navigate = useNavigate();
+
+  const liked = user ? isInWishlist(product.id) : false;
+
+  const handleWishlist = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) {
+      toast({ title: t("wishlist.loginRequired"), variant: "destructive" });
+      navigate("/login");
+      return;
+    }
+    await toggleWishlist(product.id);
+  };
 
   return (
     <motion.div
@@ -34,10 +53,20 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </span>
         )}
         {product.collectionId && (
-          <span className="absolute top-3 right-3 bg-secondary/90 text-secondary-foreground text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-xl">
+          <span className="absolute top-3 right-12 bg-secondary/90 text-secondary-foreground text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-xl">
             {t("product.set")}
           </span>
         )}
+
+        {/* Wishlist heart */}
+        <button
+          onClick={handleWishlist}
+          className="absolute top-3 right-3 p-1.5 rounded-full bg-background/60 backdrop-blur-sm hover:bg-background/80 transition-colors z-10"
+          aria-label="Toggle wishlist"
+        >
+          <Heart className={`w-4 h-4 transition-colors ${liked ? "fill-primary text-primary" : "text-foreground"}`} />
+        </button>
+
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
           <span className="inline-flex items-center gap-2 text-foreground text-xs uppercase tracking-widest font-semibold">
             <Eye className="w-4 h-4" /> {t("product.quickView")}

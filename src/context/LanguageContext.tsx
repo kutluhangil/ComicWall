@@ -16,6 +16,9 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.home": "Ana Sayfa",
     "nav.shop": "Mağaza",
     "nav.collections": "Koleksiyonlar",
+    "nav.wishlist": "İstek Listesi",
+    "nav.login": "Giriş Yap",
+    "nav.profile": "Profilim",
 
     // Hero
     "hero.badge": "Premium Sanat Posterleri",
@@ -61,6 +64,15 @@ const translations: Record<Language, Record<string, string>> = {
     // Shop page
     "shop.badge": "Tüm Posterler",
     "shop.title": "Mağaza",
+    "shop.allCategories": "Tümü",
+    "shop.filter": "Filtrele",
+    "shop.surpriseMe": "Beni Şaşırt!",
+    "shop.noResults": "Aramanıza uygun poster bulunamadı.",
+    "shop.clearFilters": "Filtreleri Temizle",
+    "shop.priceRange": "Fiyat Aralığı",
+    "shop.sizeFilter": "Boyut",
+    "shop.allSizes": "Tüm Boyutlar",
+    "shop.bundles": "Sadece Setler",
 
     // Collections page
     "collectionsPage.badge": "Tematik Setler",
@@ -104,6 +116,39 @@ const translations: Record<Language, Record<string, string>> = {
     "checkout.orderPlaced": "Siparişiniz alındı!",
     "checkout.orderThanks": "Satın aldığınız için teşekkür ederiz.",
 
+    // Auth
+    "auth.login": "Giriş Yap",
+    "auth.register": "Kayıt Ol",
+    "auth.logout": "Çıkış Yap",
+    "auth.email": "E-posta",
+    "auth.password": "Şifre",
+    "auth.displayName": "Görünen Ad",
+    "auth.displayNamePlaceholder": "Adınız",
+    "auth.loginDesc": "Hesabınıza giriş yapın",
+    "auth.registerDesc": "Yeni hesap oluşturun",
+    "auth.noAccount": "Hesabınız yok mu?",
+    "auth.hasAccount": "Zaten hesabınız var mı?",
+    "auth.loggingIn": "Giriş yapılıyor...",
+    "auth.creating": "Oluşturuluyor...",
+    "auth.error": "Hata",
+    "auth.welcomeBack": "Tekrar hoş geldiniz! 🎉",
+    "auth.accountCreated": "Hesabınız oluşturuldu! 🎉",
+    "auth.welcomeNew": "ComicWall'a hoş geldiniz!",
+    "auth.passwordMin": "Şifre en az 6 karakter olmalıdır",
+
+    // Profile
+    "profile.title": "Profilim",
+    "profile.save": "Kaydet",
+    "profile.saving": "Kaydediliyor...",
+    "profile.saved": "Profil güncellendi ✓",
+
+    // Wishlist
+    "wishlist.title": "İstek Listesi",
+    "wishlist.badge": "Favorileriniz",
+    "wishlist.empty": "İstek listeniz boş. Beğendiğiniz posterleri kalp ikonuyla kaydedin.",
+    "wishlist.goShopping": "Mağazaya Git",
+    "wishlist.loginRequired": "İstek listesi için giriş yapmalısınız",
+
     // Footer
     "footer.tagline": "Yapay zeka ile üretilmiş premium çizgi roman tarzı posterler. Duvarlarınızı süper güce dönüştürün.",
     "footer.shop": "Mağaza",
@@ -128,6 +173,9 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.home": "Home",
     "nav.shop": "Shop",
     "nav.collections": "Collections",
+    "nav.wishlist": "Wishlist",
+    "nav.login": "Login",
+    "nav.profile": "My Profile",
 
     // Hero
     "hero.badge": "Premium Art Posters",
@@ -173,6 +221,15 @@ const translations: Record<Language, Record<string, string>> = {
     // Shop page
     "shop.badge": "All Posters",
     "shop.title": "The Shop",
+    "shop.allCategories": "All",
+    "shop.filter": "Filter",
+    "shop.surpriseMe": "Surprise Me!",
+    "shop.noResults": "No posters match your filters.",
+    "shop.clearFilters": "Clear Filters",
+    "shop.priceRange": "Price Range",
+    "shop.sizeFilter": "Size",
+    "shop.allSizes": "All Sizes",
+    "shop.bundles": "Sets Only",
 
     // Collections page
     "collectionsPage.badge": "Themed Sets",
@@ -216,6 +273,39 @@ const translations: Record<Language, Record<string, string>> = {
     "checkout.orderPlaced": "Order placed!",
     "checkout.orderThanks": "Thank you for your purchase.",
 
+    // Auth
+    "auth.login": "Login",
+    "auth.register": "Register",
+    "auth.logout": "Logout",
+    "auth.email": "Email",
+    "auth.password": "Password",
+    "auth.displayName": "Display Name",
+    "auth.displayNamePlaceholder": "Your name",
+    "auth.loginDesc": "Sign in to your account",
+    "auth.registerDesc": "Create a new account",
+    "auth.noAccount": "Don't have an account?",
+    "auth.hasAccount": "Already have an account?",
+    "auth.loggingIn": "Signing in...",
+    "auth.creating": "Creating...",
+    "auth.error": "Error",
+    "auth.welcomeBack": "Welcome back! 🎉",
+    "auth.accountCreated": "Account created! 🎉",
+    "auth.welcomeNew": "Welcome to ComicWall!",
+    "auth.passwordMin": "Password must be at least 6 characters",
+
+    // Profile
+    "profile.title": "My Profile",
+    "profile.save": "Save",
+    "profile.saving": "Saving...",
+    "profile.saved": "Profile updated ✓",
+
+    // Wishlist
+    "wishlist.title": "Wishlist",
+    "wishlist.badge": "Your Favorites",
+    "wishlist.empty": "Your wishlist is empty. Save posters you like with the heart icon.",
+    "wishlist.goShopping": "Go to Shop",
+    "wishlist.loginRequired": "Login required for wishlist",
+
     // Footer
     "footer.tagline": "Premium AI-generated comic-style posters. Turn your walls into a superpower.",
     "footer.shop": "Shop",
@@ -243,7 +333,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       const saved = localStorage.getItem("comicwall-lang");
       if (saved === "tr" || saved === "en") return saved;
     } catch {}
-    // Default to Turkish for Turkish users
     if (typeof navigator !== "undefined" && navigator.language?.startsWith("tr")) return "tr";
     return "tr";
   });
