@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart, Menu, X, Sun, Moon, Globe } from "lucide-react";
+import { ShoppingCart, Menu, X, Sun, Moon, Globe, User, Heart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 import { useTheme } from "next-themes";
 
@@ -10,6 +11,7 @@ const SiteHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
+  const { user } = useAuth();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/70 backdrop-blur-2xl border-b border-border/50">
@@ -24,8 +26,7 @@ const SiteHeader = () => {
           <Link to="/collections" className="text-muted-foreground hover:text-foreground transition-colors">{t("nav.collections")}</Link>
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Language Switcher */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5">
           <button
             onClick={() => setLanguage(language === "tr" ? "en" : "tr")}
             className="flex items-center gap-1 text-foreground hover:text-primary transition-colors p-1.5 rounded-xl bg-muted/50 hover:bg-muted text-xs font-bold uppercase"
@@ -43,6 +44,12 @@ const SiteHeader = () => {
             {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
 
+          {user && (
+            <Link to="/wishlist" className="text-foreground hover:text-primary transition-colors p-1.5 hidden sm:block">
+              <Heart className="w-5 h-5" />
+            </Link>
+          )}
+
           <Link to="/cart" className="relative text-foreground hover:text-primary transition-colors p-1.5">
             <ShoppingCart className="w-5 h-5" />
             {totalItems > 0 && (
@@ -51,6 +58,16 @@ const SiteHeader = () => {
               </span>
             )}
           </Link>
+
+          {user ? (
+            <Link to="/profile" className="text-foreground hover:text-primary transition-colors p-1.5">
+              <User className="w-5 h-5" />
+            </Link>
+          ) : (
+            <Link to="/login" className="hidden sm:inline-flex bg-primary text-primary-foreground px-4 py-1.5 text-xs uppercase tracking-widest font-bold rounded-xl hover:bg-primary/90 transition-colors">
+              {t("nav.login")}
+            </Link>
+          )}
 
           <button className="md:hidden text-foreground p-1.5" onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -63,6 +80,15 @@ const SiteHeader = () => {
           <Link to="/" onClick={() => setMenuOpen(false)} className="text-foreground hover:text-primary transition-colors">{t("nav.home")}</Link>
           <Link to="/shop" onClick={() => setMenuOpen(false)} className="text-foreground hover:text-primary transition-colors">{t("nav.shop")}</Link>
           <Link to="/collections" onClick={() => setMenuOpen(false)} className="text-foreground hover:text-primary transition-colors">{t("nav.collections")}</Link>
+          {user && (
+            <>
+              <Link to="/wishlist" onClick={() => setMenuOpen(false)} className="text-foreground hover:text-primary transition-colors">{t("nav.wishlist")}</Link>
+              <Link to="/profile" onClick={() => setMenuOpen(false)} className="text-foreground hover:text-primary transition-colors">{t("nav.profile")}</Link>
+            </>
+          )}
+          {!user && (
+            <Link to="/login" onClick={() => setMenuOpen(false)} className="text-primary font-bold">{t("nav.login")}</Link>
+          )}
         </div>
       )}
     </header>
