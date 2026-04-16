@@ -19,6 +19,9 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import Wishlist from "./pages/Wishlist";
+import Orders from "./pages/Orders";
+import OrderSuccess from "./pages/OrderSuccess";
+import OrderFailed from "./pages/OrderFailed";
 import NotFound from "./pages/NotFound";
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -48,6 +51,9 @@ const App = () => (
                       <Route path="/register" element={<Register />} />
                       <Route path="/profile" element={<Profile />} />
                       <Route path="/wishlist" element={<Wishlist />} />
+                      <Route path="/orders" element={<Orders />} />
+                      <Route path="/order-success" element={<OrderSuccess />} />
+                      <Route path="/order-failed" element={<OrderFailed />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </BrowserRouter>
