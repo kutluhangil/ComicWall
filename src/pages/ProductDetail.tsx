@@ -9,6 +9,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
 import { motion } from "motion/react";
+import { formatPrice } from "@/lib/format";
 
 const ProductDetail = () => {
   const { slug } = useParams();
@@ -79,7 +80,7 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            <p className="font-bebas text-3xl sm:text-4xl text-foreground mt-6">€{price.toFixed(2)}</p>
+            <p className="font-bebas text-3xl sm:text-4xl text-foreground mt-6">{formatPrice(price)}</p>
 
             <div className="flex items-center gap-4 mt-6">
               <p className="text-xs uppercase tracking-widest font-semibold text-foreground">{t("product.qty")}</p>

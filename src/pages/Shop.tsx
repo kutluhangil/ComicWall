@@ -8,6 +8,7 @@ import SEO from "@/components/SEO";
 import { useLanguage } from "@/context/LanguageContext";
 import { Shuffle, SlidersHorizontal, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { formatPrice } from "@/lib/format";
 
 const CATEGORIES = [...new Set(products.map((p) => p.category))];
 
@@ -17,7 +18,7 @@ const Shop = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<PosterSize | null>(null);
   const [bundlesOnly, setBundlesOnly] = useState(false);
-  const [maxPrice, setMaxPrice] = useState(30);
+  const [maxPrice, setMaxPrice] = useState(700);
   const [showFilters, setShowFilters] = useState(false);
 
   const filteredProducts = useMemo(() => {
@@ -39,10 +40,10 @@ const Shop = () => {
     setSelectedCategory(null);
     setSelectedSize(null);
     setBundlesOnly(false);
-    setMaxPrice(30);
+    setMaxPrice(700);
   };
 
-  const hasActiveFilters = selectedCategory || selectedSize || bundlesOnly || maxPrice < 30;
+  const hasActiveFilters = selectedCategory || selectedSize || bundlesOnly || maxPrice < 700;
 
   return (
     <>
@@ -140,14 +141,14 @@ const Shop = () => {
                   <p className="text-xs uppercase tracking-widest font-semibold text-foreground mb-3">{t("shop.priceRange")}</p>
                   <input
                     type="range"
-                    min="10"
-                    max="30"
-                    step="1"
+                    min="200"
+                    max="700"
+                    step="10"
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(Number(e.target.value))}
                     className="w-full accent-primary"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">€0 — €{maxPrice}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{formatPrice(0)} — {formatPrice(maxPrice)}</p>
                 </div>
 
                 {/* Bundles only */}

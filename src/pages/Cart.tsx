@@ -6,6 +6,7 @@ import { products, SIZES } from "@/data/products";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
+import { formatPrice } from "@/lib/format";
 
 const Cart = () => {
   const { items, updateQuantity, removeItem } = useCart();
@@ -64,7 +65,7 @@ const Cart = () => {
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <p className="font-semibold text-foreground text-base sm:text-lg">€{cp.lineTotal.toFixed(2)}</p>
+                    <p className="font-semibold text-foreground text-base sm:text-lg">{formatPrice(cp.lineTotal)}</p>
                   </div>
                 </div>
               ))}
@@ -76,7 +77,7 @@ const Cart = () => {
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">{t("cart.subtotal")}</span>
-                    <span className="text-foreground font-medium">€{total.toFixed(2)}</span>
+                    <span className="text-foreground font-medium">{formatPrice(total)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">{t("cart.shipping")}</span>
@@ -84,7 +85,7 @@ const Cart = () => {
                   </div>
                   <div className="border-t border-border pt-3 mt-3 flex justify-between items-center">
                     <span className="text-foreground font-semibold">{t("cart.total")}</span>
-                    <span className="font-bebas text-3xl text-primary">€{total.toFixed(2)}</span>
+                    <span className="font-bebas text-3xl text-primary">{formatPrice(total)}</span>
                   </div>
                 </div>
                 <Link

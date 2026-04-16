@@ -9,6 +9,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
 import { motion } from "motion/react";
 import { ShoppingCart } from "lucide-react";
+import { formatPrice } from "@/lib/format";
 
 const CollectionDetail = () => {
   const { slug } = useParams();
@@ -64,7 +65,7 @@ const CollectionDetail = () => {
               ))}
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-              <span className="font-bebas text-3xl text-foreground">€{bundlePrice.toFixed(2)}</span>
+              <span className="font-bebas text-3xl text-foreground">{formatPrice(bundlePrice)}</span>
               <button
                 onClick={addBundle}
                 className="bg-secondary text-secondary-foreground px-6 py-3 text-sm uppercase tracking-widest font-bold rounded-2xl hover:bg-secondary/90 transition-colors inline-flex items-center gap-2"
