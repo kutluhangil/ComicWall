@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
-import { User, LogOut, Save } from "lucide-react";
+import { User, LogOut, Save, Package, Heart } from "lucide-react";
+import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
 const Profile = () => {
@@ -86,6 +87,15 @@ const Profile = () => {
               {saving ? t("profile.saving") : t("profile.save")}
             </button>
           </form>
+
+          <div className="border-t border-border pt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Link to="/orders" className="bg-muted hover:bg-muted/70 text-foreground px-4 py-3 text-sm uppercase tracking-widest font-semibold rounded-2xl inline-flex items-center justify-center gap-2 transition-colors">
+              <Package className="w-4 h-4" /> {t("nav.orders")}
+            </Link>
+            <Link to="/wishlist" className="bg-muted hover:bg-muted/70 text-foreground px-4 py-3 text-sm uppercase tracking-widest font-semibold rounded-2xl inline-flex items-center justify-center gap-2 transition-colors">
+              <Heart className="w-4 h-4" /> {t("nav.wishlist")}
+            </Link>
+          </div>
 
           <div className="border-t border-border pt-6">
             <button

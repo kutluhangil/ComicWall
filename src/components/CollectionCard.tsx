@@ -4,6 +4,7 @@ import { products } from "@/data/products";
 import { useLanguage } from "@/context/LanguageContext";
 import type { Collection } from "@/data/products";
 import { motion } from "motion/react";
+import { formatPrice } from "@/lib/format";
 
 interface CollectionCardProps {
   collection: Collection;
@@ -41,7 +42,7 @@ const CollectionCard = ({ collection }: CollectionCardProps) => {
         <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{collection.description}</p>
         <div className="flex items-center justify-between mt-4">
           <p className="text-sm text-foreground">
-            {t("collections.bundleFrom")} <span className="font-semibold text-secondary">€{collection.bundlePrice["10x15"]}</span>
+            {t("collections.bundleFrom")} <span className="font-semibold text-secondary">{formatPrice(collection.bundlePrice["10x15"])}</span>
           </p>
           <Link
             to={`/collection/${collection.slug}`}

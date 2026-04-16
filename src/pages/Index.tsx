@@ -12,6 +12,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
 import { useLanguage } from "@/context/LanguageContext";
+import { formatPrice } from "@/lib/format";
 
 const particles = Array.from({ length: 12 }, (_, i) => ({
   id: i,
@@ -237,7 +238,7 @@ const Index = () => {
                 </div>
                 <h3 className="font-bebas text-2xl tracking-wide text-foreground">{size.label}</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {t("sizes.from")} €{(12.99 + i * 6).toFixed(2)}
+                  {t("sizes.from")} {formatPrice(SIZES[i] ? products[0].prices[SIZES[i].value] : 249)}
                 </p>
               </motion.div>
             ))}

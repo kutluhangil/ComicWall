@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart, Menu, X, Sun, Moon, Globe, User, Heart } from "lucide-react";
+import { ShoppingCart, Menu, X, Sun, Moon, User, Heart, Package } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
@@ -10,7 +10,7 @@ const SiteHeader = () => {
   const { totalItems } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
-  const { language, setLanguage, t } = useLanguage();
+  const { t } = useLanguage();
   const { user } = useAuth();
 
   return (
@@ -24,33 +24,27 @@ const SiteHeader = () => {
           <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">{t("nav.home")}</Link>
           <Link to="/shop" className="text-muted-foreground hover:text-foreground transition-colors">{t("nav.shop")}</Link>
           <Link to="/collections" className="text-muted-foreground hover:text-foreground transition-colors">{t("nav.collections")}</Link>
+          {user && (
+            <Link to="/orders" className="text-muted-foreground hover:text-foreground transition-colors">{t("nav.orders")}</Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-1.5 sm:gap-2.5">
           <button
-            onClick={() => setLanguage(language === "tr" ? "en" : "tr")}
-            className="flex items-center gap-1 text-foreground hover:text-primary transition-colors p-1.5 rounded-xl bg-muted/50 hover:bg-muted text-xs font-bold uppercase"
-            aria-label="Switch language"
-          >
-            <Globe className="w-3.5 h-3.5" />
-            <span>{language === "tr" ? "EN" : "TR"}</span>
-          </button>
-
-          <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="text-foreground hover:text-primary transition-colors p-1.5 rounded-xl hover:bg-muted/50"
-            aria-label="Toggle theme"
+            aria-label="Tema değiştir"
           >
             {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
 
           {user && (
-            <Link to="/wishlist" className="text-foreground hover:text-primary transition-colors p-1.5 hidden sm:block">
+            <Link to="/wishlist" className="text-foreground hover:text-primary transition-colors p-1.5 hidden sm:block" aria-label={t("nav.wishlist")}>
               <Heart className="w-5 h-5" />
             </Link>
           )}
 
-          <Link to="/cart" className="relative text-foreground hover:text-primary transition-colors p-1.5">
+          <Link to="/cart" className="relative text-foreground hover:text-primary transition-colors p-1.5" aria-label={t("cart.title")}>
             <ShoppingCart className="w-5 h-5" />
             {totalItems > 0 && (
               <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
@@ -60,7 +54,7 @@ const SiteHeader = () => {
           </Link>
 
           {user ? (
-            <Link to="/profile" className="text-foreground hover:text-primary transition-colors p-1.5">
+            <Link to="/profile" className="text-foreground hover:text-primary transition-colors p-1.5" aria-label={t("nav.profile")}>
               <User className="w-5 h-5" />
             </Link>
           ) : (
@@ -69,7 +63,7 @@ const SiteHeader = () => {
             </Link>
           )}
 
-          <button className="md:hidden text-foreground p-1.5" onClick={() => setMenuOpen(!menuOpen)}>
+          <button className="md:hidden text-foreground p-1.5" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menü">
             {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
@@ -82,8 +76,9 @@ const SiteHeader = () => {
           <Link to="/collections" onClick={() => setMenuOpen(false)} className="text-foreground hover:text-primary transition-colors">{t("nav.collections")}</Link>
           {user && (
             <>
-              <Link to="/wishlist" onClick={() => setMenuOpen(false)} className="text-foreground hover:text-primary transition-colors">{t("nav.wishlist")}</Link>
-              <Link to="/profile" onClick={() => setMenuOpen(false)} className="text-foreground hover:text-primary transition-colors">{t("nav.profile")}</Link>
+              <Link to="/wishlist" onClick={() => setMenuOpen(false)} className="text-foreground hover:text-primary transition-colors flex items-center gap-2"><Heart className="w-4 h-4" /> {t("nav.wishlist")}</Link>
+              <Link to="/orders" onClick={() => setMenuOpen(false)} className="text-foreground hover:text-primary transition-colors flex items-center gap-2"><Package className="w-4 h-4" /> {t("nav.orders")}</Link>
+              <Link to="/profile" onClick={() => setMenuOpen(false)} className="text-foreground hover:text-primary transition-colors flex items-center gap-2"><User className="w-4 h-4" /> {t("nav.profile")}</Link>
             </>
           )}
           {!user && (

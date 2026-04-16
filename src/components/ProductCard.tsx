@@ -7,6 +7,7 @@ import { useWishlist } from "@/context/WishlistContext";
 import type { Product } from "@/data/products";
 import { motion } from "motion/react";
 import { toast } from "@/hooks/use-toast";
+import { formatPrice } from "@/lib/format";
 
 interface ProductCardProps {
   product: Product;
@@ -79,7 +80,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <h3 className="font-bebas text-lg sm:text-xl tracking-wide text-foreground">{product.title}</h3>
         <div className="flex items-center justify-between mt-2 sm:mt-3">
           <p className="text-sm text-foreground">
-            {t("product.from")} <span className="font-semibold text-primary">€{product.prices["10x15"]}</span>
+            {t("product.from")} <span className="font-semibold text-primary">{formatPrice(product.prices["10x15"])}</span>
           </p>
           <button
             onClick={(e) => {
