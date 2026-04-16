@@ -1,75 +1,104 @@
 
 
-# ComicWall - Animasyon ve Acik Tema Plani
+# ComicWall - iyzico Ödeme + Tam Türkçe + TRY Para Birimi
 
-## Ozet
-Landing page'e canli motion animasyonlari eklenecek, acik tema (light mode) destegi eklenecek ve acik temada farkli bir super kahraman gorseli kullanilacak.
-
----
-
-## 1. Acik Tema (Light Mode) Destegi
-
-**`src/index.css`** dosyasina `.light` sinifi icin yeni renk degiskenleri eklenecek:
-- Beyaz/acik gri arka plan
-- Koyu metin renkleri
-- Ayni vurgu renkleri (kirmizi, mavi, sari) korunacak ama acik temaya uygun tonlarda
-- Glow efektleri acik temada daha soft olacak
-
-**`src/App.tsx`** dosyasina `next-themes` paketi ile `ThemeProvider` eklenecek (paket zaten yuklu).
-
-**`src/components/SiteHeader.tsx`** dosyasina tema degistirme butonu (gunes/ay ikonu) eklenecek.
+## Özet
+1. Tüm site sadece Türkçe olacak (dil seçici kaldırılacak, varsayılan TR)
+2. Tüm fiyatlar Euro (€) yerine Türk Lirası (₺) olacak
+3. iyzico ödeme entegrasyonu eklenecek (sandbox + canlı destek)
+4. Backend için Supabase Edge Function ile iyzico REST API kullanılacak
+5. Siparişler veritabanında saklanacak
 
 ---
 
-## 2. Hero Section Animasyonlari
+## 1. Para Birimi: € → ₺ (TRY)
 
-**`src/pages/Index.tsx`** dosyasinda hero bolumune su animasyonlar eklenecek:
+Yeni bir `formatPrice()` yardımcı fonksiyonu (`src/lib/format.ts`) oluşturulacak. Türkiye standardına uygun:
+- Örn: `₺249,90` (virgül ondalık, sonda TL sembolü Türkiye'de yaygın)
+- `Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY" })` kullanılacak
 
-- **Baslik animasyonu**: "Turn Your Wall Into a" satirlari tek tek yukari kayarak gelecek (staggered fade-in). "Superpower" kelimesi ozel bir gradient animasyonu ile parlayacak (shimmer efekti).
-- **Arka plan gorseli**: Yavas bir zoom-in (scale) animasyonu ile canli hissi verecek (15-20 saniye dongude).
-- **Floating particles**: Arka planda yukari dogru suzulen kucuk isik parcaciklari (CSS keyframes ile).
-- **CTA butonlari**: Hafif pulse/glow animasyonu ile dikkat cekecek.
-- **Vignette efekti**: Kenarlardan iceri dogru koyu gradient ile sinematik his.
+**Fiyatlar TRY'ye çevrilecek** (`src/data/products.ts`):
+- Tek poster: 10x15 → ₺249, 13x18 → ₺379, 20x30 → ₺599
+- Bundle (3'lü): 10x15 → ₺599, 13x18 → ₺899, 20x30 → ₺1.399
 
-**`src/index.css`** dosyasina yeni keyframe animasyonlari eklenecek:
-- `@keyframes hero-zoom` - arka plan yavas zoom
-- `@keyframes float-particle` - parcacik yukselme
-- `@keyframes shimmer` - gradient kayma efekti
-- `@keyframes pulse-glow` - buton parlama
+Etkilenen dosyalar: `Cart.tsx`, `Checkout.tsx`, `ProductDetail.tsx`, `Shop.tsx`, `Index.tsx`, `ProductCard.tsx`, `CollectionCard.tsx`, `CollectionDetail.tsx`, `Wishlist.tsx`
 
 ---
 
-## 3. Temaya Gore Farkli Hero Gorseli
+## 2. Tam Türkçe Site
 
-- Karanlik temada mevcut `hero-banner.jpg` kullanilacak
-- Acik tema icin yeni bir super kahraman gorseli olusturulacak (parlak, aydinlik tonlarda bir kahraman -- ornegin kozmik/gunesin gucunu kullanan bir karakter)
-- `useTheme()` hook'u ile aktif temaya gore gorsel degistirilecek
+- `LanguageContext.tsx` basitleştirilecek: sadece TR çevirileri kalacak, dil değiştirici kaldırılacak (`useLanguage` API'si geriye uyumlu kalacak ki mevcut kodlar bozulmasın)
+- Header'daki 🌐 butonu kaldırılacak
+- `<html lang="tr">` sabit olacak
+- Ürün başlıkları/açıklamaları Türkçeleştirilecek (`products.ts`):
+  - "The Dark Knight" → "Kara Şövalye"
+  - "Cosmic Sentinel" → "Kozmik Bekçi"
+  - "Crimson Speedster" → "Kızıl Şimşek"
+  - "Warrior Queen" → "Savaşçı Kraliçe"
+  - "Iron Titan" → "Demir Titan"
+  - "Emerald Guardian" → "Zümrüt Muhafız"
+  - "Thunder God" → "Şimşek Tanrısı"
+  - "Web Slinger" → "Ağ Atan"
+  - Kategoriler: "DC Inspired" → "DC Esinli", "Marvel Inspired" → "Marvel Esinli", "Cosmic" → "Kozmik"
+  - Badge'ler: "Best Seller" → "Çok Satan", "New" → "Yeni", "Popular" → "Popüler"
+  - Koleksiyon başlıkları ve açıklamaları da TR olacak
 
 ---
 
-## 4. Sayfa Genelinde Canlilik
+## 3. iyzico Ödeme Entegrasyonu
 
-- **ProductCard**: Hover'da hafif yukariya kayma + gllow animasyonu guclendirilecek
-- **CollectionCard**: Hover'da gorsel uzerinde hafif paralaks efekti
-- **Section basliklari**: Scroll ile gorunur oldugunda soldan saga kayarak gelme animasyonu (motion whileInView)
-- **Size kartlari**: Hover'da hafif donme/titresim efekti
+### Backend (Supabase Edge Functions)
+
+**Yeni tablolar (migration):**
+- `orders`: id, user_id, status (pending/paid/preparing/shipped/delivered/failed), total_amount, currency, shipping_info (jsonb), iyzico_payment_id, iyzico_conversation_id, created_at
+- `order_items`: id, order_id, product_id, product_title, size, quantity, unit_price, line_total
+- RLS: kullanıcılar yalnızca kendi siparişlerini görebilir
+
+**Edge Functions:**
+1. `iyzico-create-payment` — Sepet bilgilerini alır, iyzico **Checkout Form** API'sine istek atar, ödeme formu URL'i + token döner. Sipariş "pending" olarak kaydedilir.
+2. `iyzico-callback` — iyzico'dan gelen callback'i alır, ödemeyi doğrular, sipariş durumunu "paid" olarak günceller.
+
+### iyzico Yöntemi: Checkout Form (önerilen)
+- Kullanıcı checkout sayfasında bilgileri girer → "Ödemeye Geç"
+- Backend iyzico API'ye `paymentCard` olmadan checkout form başlatır
+- iyzico'nun güvenli ödeme sayfasına yönlendirilir (kart bilgileri orada girilir → PCI uyumu Lovable tarafında gerek yok)
+- Ödeme sonrası callback URL'imize döner → sipariş onaylanır → `/order-success` sayfasına yönlendirilir
+
+### Gerekli Secret'lar (kullanıcıdan istenecek):
+- `IYZICO_API_KEY`
+- `IYZICO_SECRET_KEY`
+- `IYZICO_BASE_URL` (sandbox: `https://sandbox-api.iyzipay.com`, canlı: `https://api.iyzipay.com`)
+
+### Frontend değişiklikleri:
+- `Checkout.tsx`: form alanları TR olacak, "Siparişi Onayla" butonu artık edge function'ı çağırıp iyzico'ya yönlendirecek
+- Yeni `OrderSuccess.tsx` sayfası: ödeme sonrası teşekkür ekranı + sipariş özeti
+- Yeni `Orders.tsx` (sipariş geçmişi) sayfası: profil menüsünden erişilebilir, sipariş listesi + durum (Hazırlanıyor / Kargoda / Teslim Edildi)
 
 ---
 
-## Teknik Detaylar
+## 4. Etkilenen Dosyalar
 
-Degisecek dosyalar:
-1. **`src/index.css`** - Light tema renkleri + yeni keyframe animasyonlari
-2. **`src/App.tsx`** - ThemeProvider eklenmesi
-3. **`src/pages/Index.tsx`** - Hero animasyonlari, tema bazli gorsel, parcacik efektleri
-4. **`src/components/SiteHeader.tsx`** - Tema degistirme butonu
-5. **`src/components/ProductCard.tsx`** - Gelistirilmis hover animasyonlari
-6. **`src/components/CollectionCard.tsx`** - Paralaks hover efekti
-7. Yeni acik tema hero gorseli olusturulacak
+**Yeni:**
+- `src/lib/format.ts` (TRY formatlama)
+- `src/pages/OrderSuccess.tsx`
+- `src/pages/Orders.tsx`
+- `supabase/functions/iyzico-create-payment/index.ts`
+- `supabase/functions/iyzico-callback/index.ts`
+- Migration: `orders`, `order_items` tabloları
 
-Kullanilacak teknolojiler:
-- `motion/react` (zaten yuklu) - Baslik ve kart animasyonlari
-- `next-themes` (zaten yuklu) - Tema yonetimi
-- CSS `@keyframes` - Arka plan ve parcacik animasyonlari
-- Tailwind dark mode class strategy (zaten konfigured)
+**Güncellenecek:**
+- `src/data/products.ts` (TR + TRY fiyatlar)
+- `src/context/LanguageContext.tsx` (sadece TR)
+- `src/components/SiteHeader.tsx` (dil butonu kaldır, "Siparişlerim" ekle)
+- `src/pages/Checkout.tsx` (iyzico entegrasyonu, TRY)
+- `src/pages/Cart.tsx`, `ProductDetail.tsx`, `Shop.tsx`, `Index.tsx`, `Wishlist.tsx`, `CollectionDetail.tsx` (TRY)
+- `src/components/ProductCard.tsx`, `CollectionCard.tsx` (TRY)
+- `src/App.tsx` (yeni route'lar)
+- `index.html` (`lang="tr"`)
+
+---
+
+## Kullanıcının Yapması Gerekenler
+1. iyzico hesabı açmak (ücretsiz sandbox: https://sandbox-merchant.iyzipay.com)
+2. API anahtarlarını sağlamak — secret tool ile istenecek
 
