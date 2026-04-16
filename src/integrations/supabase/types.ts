@@ -14,6 +14,92 @@ export type Database = {
   }
   public: {
     Tables: {
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          line_total: number
+          order_id: string
+          product_id: string
+          product_title: string
+          quantity: number
+          size: string
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          line_total: number
+          order_id: string
+          product_id: string
+          product_title: string
+          quantity: number
+          size: string
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          line_total?: number
+          order_id?: string
+          product_id?: string
+          product_title?: string
+          quantity?: number
+          size?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          currency: string
+          id: string
+          iyzico_conversation_id: string | null
+          iyzico_payment_id: string | null
+          iyzico_token: string | null
+          shipping_info: Json
+          status: string
+          total_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          id?: string
+          iyzico_conversation_id?: string | null
+          iyzico_payment_id?: string | null
+          iyzico_token?: string | null
+          shipping_info: Json
+          status?: string
+          total_amount: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          id?: string
+          iyzico_conversation_id?: string | null
+          iyzico_payment_id?: string | null
+          iyzico_token?: string | null
+          shipping_info?: Json
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
