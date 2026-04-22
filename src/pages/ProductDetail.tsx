@@ -1,23 +1,62 @@
 import { useParams, Link } from "react-router-dom";
-import { useState } from "react";
-import { Minus, Plus, ShoppingCart, Zap } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Minus, Plus, ShoppingCart, Zap, Heart, Share2, Truck, RotateCcw, ShieldCheck, Printer } from "lucide-react";
 import { getProduct, getCollectionProducts, products, SIZES, type PosterSize } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { useWishlist } from "@/context/WishlistContext";
 import ProductCard from "@/components/ProductCard";
+import ProductReviews from "@/components/ProductReviews";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
 import { motion } from "motion/react";
 import { formatPrice } from "@/lib/format";
+import { recordRecentlyViewed, useRecentlyViewed } from "@/hooks/useRecentlyViewed";
+import { SITE_CONFIG } from "@/lib/siteConfig";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const ProductDetail = () => {
   const { slug } = useParams();
   const product = getProduct(slug || "");
   const { addItem } = useCart();
   const { t } = useLanguage();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const [selectedSize, setSelectedSize] = useState<PosterSize>("13x18");
   const [quantity, setQuantity] = useState(1);
+  const [rating, setRating] = useState<{ avg: number; count: number }>({ avg: 0, count: 0 });
+
+  const recentIds = useRecentlyViewed(product?.id);
+
+  useEffect(() => {
+    if (product) {
+      recordRecentlyViewed(product.id);
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+  }, [product?.id]);
+
+  useEffect(() => {
+    if (!product) return;
+    let active = true;
+    supabase
+      .from("product_reviews")
+      .select("rating")
+      .eq("product_id", product.id)
+      .then(({ data }) => {
+        if (!active || !data || data.length === 0) return;
+        const avg = data.reduce((s, r: any) => s + r.rating, 0) / data.length;
+        setRating({ avg, count: data.length });
+      });
+    return () => {
+      active = false;
+    };
+  }, [product?.id]);
+
+  const recentProducts = useMemo(
+    () => recentIds.map((id) => products.find((p) => p.id === id)).filter(Boolean) as typeof products,
+    [recentIds]
+  );
 
   if (!product) {
     return (
@@ -33,12 +72,67 @@ const ProductDetail = () => {
   }
 
   const collectionProducts = product.collectionId ? getCollectionProducts(product.collectionId) : [];
-  const relatedProducts = products.filter((p) => p.id !== product.id).slice(0, 4);
+  const relatedProducts = products
+    .filter((p) => p.id !== product.id && p.category === product.category)
+    .slice(0, 4);
+  const fallbackRelated = products.filter((p) => p.id !== product.id).slice(0, 4);
+  const relatedList = relatedProducts.length >= 3 ? relatedProducts : fallbackRelated;
+
   const price = product.prices[selectedSize];
+  const wishlisted = isInWishlist(product.id);
+
+  const handleShare = async () => {
+    const url = typeof window !== "undefined" ? window.location.href : `${SITE_CONFIG.url}/product/${product.slug}`;
+    try {
+      if (typeof navigator !== "undefined" && "share" in navigator) {
+        await navigator.share({ title: product.title, text: product.description, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast({ title: t("product.linkCopied") });
+      }
+    } catch {
+      // kullanıcı iptal etti
+    }
+  };
+
+  const productJsonLd = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    name: product.title,
+    description: product.description,
+    image: `${SITE_CONFIG.url}${product.image}`,
+    category: product.category,
+    brand: { "@type": "Brand", name: "ComicWall" },
+    offers: {
+      "@type": "AggregateOffer",
+      priceCurrency: "TRY",
+      lowPrice: Math.min(...Object.values(product.prices)),
+      highPrice: Math.max(...Object.values(product.prices)),
+      offerCount: Object.keys(product.prices).length,
+      availability: "https://schema.org/InStock",
+      seller: { "@type": "Organization", name: "ComicWall" },
+    },
+    ...(rating.count > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: Number(rating.avg.toFixed(1)),
+            reviewCount: rating.count,
+          },
+        }
+      : {}),
+  };
 
   return (
     <>
-      <SEO title={`${product.title} — ComicWall`} description={product.description} canonicalUrl={`/product/${product.slug}`} />
+      <SEO
+        title={`${product.title} — ComicWall`}
+        description={product.description}
+        canonicalUrl={`/product/${product.slug}`}
+        ogType="product"
+        ogImage={product.image}
+        jsonLd={productJsonLd}
+      />
       <SiteHeader />
       <main className="pt-24 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
@@ -57,8 +151,37 @@ const ProductDetail = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="flex flex-col justify-center"
           >
-            <p className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-2">{product.category}</p>
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <p className="text-xs uppercase tracking-[0.3em] text-primary font-semibold">{product.category}</p>
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => toggleWishlist(product.id)}
+                  aria-label={t("nav.wishlist")}
+                  className={`p-2 rounded-xl border transition-all ${
+                    wishlisted
+                      ? "bg-primary/10 text-primary border-primary/30"
+                      : "text-muted-foreground border-border hover:text-primary hover:border-primary/30"
+                  }`}
+                >
+                  <Heart className={`w-4 h-4 ${wishlisted ? "fill-primary" : ""}`} />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  aria-label={t("product.share")}
+                  className="p-2 rounded-xl border border-border text-muted-foreground hover:text-primary hover:border-primary/30 transition-all"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
             <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl tracking-wide text-foreground">{product.title}</h1>
+            {rating.count > 0 && (
+              <a href="#reviews" className="text-xs text-muted-foreground mt-2 hover:text-primary transition-colors">
+                ★ {rating.avg.toFixed(1)} — {rating.count} değerlendirme
+              </a>
+            )}
             <p className="text-muted-foreground mt-4 leading-relaxed text-sm sm:text-base">{product.description}</p>
 
             <div className="mt-6 sm:mt-8">
@@ -111,6 +234,13 @@ const ProductDetail = () => {
               </Link>
             </div>
 
+            <ul className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-muted-foreground">
+              <li className="flex items-center gap-2"><Truck className="w-3.5 h-3.5 text-primary" /> {t("product.features.shipping")}</li>
+              <li className="flex items-center gap-2"><Printer className="w-3.5 h-3.5 text-primary" /> {t("product.features.quality")}</li>
+              <li className="flex items-center gap-2"><RotateCcw className="w-3.5 h-3.5 text-primary" /> {t("product.features.return")}</li>
+              <li className="flex items-center gap-2"><ShieldCheck className="w-3.5 h-3.5 text-primary" /> {t("product.features.secure")}</li>
+            </ul>
+
             {collectionProducts.length > 1 && (
               <div className="mt-8 sm:mt-10 bg-card border border-border rounded-2xl p-5">
                 <p className="text-xs uppercase tracking-widest font-semibold text-secondary mb-3">{t("product.alsoAsSet")}</p>
@@ -126,14 +256,29 @@ const ProductDetail = () => {
           </motion.div>
         </div>
 
+        <div id="reviews">
+          <ProductReviews productId={product.id} />
+        </div>
+
         <section className="mt-16 sm:mt-20">
           <h2 className="font-bebas text-3xl tracking-wide text-foreground mb-8">{t("product.youMightLike")}</h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {relatedProducts.map((p) => (
+            {relatedList.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
         </section>
+
+        {recentProducts.length > 0 && (
+          <section className="mt-16 sm:mt-20">
+            <h2 className="font-bebas text-3xl tracking-wide text-foreground mb-8">{t("product.recentlyViewed")}</h2>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              {recentProducts.slice(0, 4).map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </section>
+        )}
       </main>
       <SiteFooter />
     </>

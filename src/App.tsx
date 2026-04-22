@@ -23,7 +23,16 @@ import Orders from "./pages/Orders";
 import OrderSuccess from "./pages/OrderSuccess";
 import OrderFailed from "./pages/OrderFailed";
 import NotFound from "./pages/NotFound";
+import Contact from "./pages/Contact";
+import FAQ from "./pages/FAQ";
+import Privacy from "./pages/legal/Privacy";
+import Kvkk from "./pages/legal/Kvkk";
+import Terms from "./pages/legal/Terms";
+import PreInfo from "./pages/legal/PreInfo";
+import Cookies from "./pages/legal/Cookies";
+import ShippingReturns from "./pages/legal/ShippingReturns";
 import ErrorBoundary from "./components/ErrorBoundary";
+import CookieBanner from "./components/CookieBanner";
 
 const queryClient = new QueryClient();
 
@@ -54,8 +63,17 @@ const App = () => (
                       <Route path="/orders" element={<Orders />} />
                       <Route path="/order-success" element={<OrderSuccess />} />
                       <Route path="/order-failed" element={<OrderFailed />} />
+                      <Route path="/contact" element={<Contact />} />
+                      <Route path="/faq" element={<FAQ />} />
+                      <Route path="/privacy" element={<Privacy />} />
+                      <Route path="/kvkk" element={<Kvkk />} />
+                      <Route path="/terms" element={<Terms />} />
+                      <Route path="/pre-info" element={<PreInfo />} />
+                      <Route path="/cookies" element={<Cookies />} />
+                      <Route path="/shipping-returns" element={<ShippingReturns />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
+                    <CookieBanner />
                   </BrowserRouter>
                 </ErrorBoundary>
               </CartProvider>

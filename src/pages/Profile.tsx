@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
-import { User, LogOut, Save, Package, Heart } from "lucide-react";
+import AddressBook from "@/components/AddressBook";
+import { User, LogOut, Save, Package, Heart, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
@@ -41,7 +42,12 @@ const Profile = () => {
 
   return (
     <>
-      <SEO title={`${t("profile.title")} — ComicWall`} description="Your profile" canonicalUrl="/profile" />
+      <SEO
+        title={`${t("profile.title")} — ComicWall`}
+        description="ComicWall hesap bilgilerinizi ve adres defterinizi yönetin."
+        canonicalUrl="/profile"
+        noindex
+      />
       <SiteHeader />
       <main className="pt-24 pb-20 min-h-screen max-w-2xl mx-auto px-5">
         <h1 className="font-bebas text-4xl sm:text-5xl tracking-wide text-foreground mb-8">{t("profile.title")}</h1>
@@ -107,6 +113,15 @@ const Profile = () => {
             </button>
           </div>
         </div>
+
+        <section className="mt-10 bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-5">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-primary" />
+            <h2 className="font-bebas text-2xl tracking-wide text-foreground">{t("profile.addresses")}</h2>
+          </div>
+          <p className="text-xs text-muted-foreground">{t("profile.addressesDesc")}</p>
+          <AddressBook />
+        </section>
       </main>
       <SiteFooter />
     </>

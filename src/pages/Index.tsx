@@ -13,6 +13,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
 import { useLanguage } from "@/context/LanguageContext";
 import { formatPrice } from "@/lib/format";
+import { SITE_CONFIG } from "@/lib/siteConfig";
 
 const particles = Array.from({ length: 12 }, (_, i) => ({
   id: i,
@@ -35,9 +36,38 @@ const Index = () => {
   return (
     <>
       <SEO
-        title="ComicWall — Premium Comic-Style Art Posters"
-        description="AI-generated original comic-style posters inspired by superhero themes. Turn your wall into a superpower."
+        title="ComicWall — Premium Çizgi Roman Tarzı Posterler"
+        description="Yapay zeka ile üretilmiş, orijinal çizgi roman tarzı posterler. Süper kahraman temalı duvar sanatı. Türkiye'nin her yerine hızlı teslimat."
         canonicalUrl="/"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: SITE_CONFIG.name,
+            legalName: SITE_CONFIG.legalName,
+            url: SITE_CONFIG.url,
+            logo: `${SITE_CONFIG.url}/favicon.ico`,
+            email: SITE_CONFIG.email,
+            telephone: SITE_CONFIG.phone,
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: SITE_CONFIG.address,
+              addressCountry: "TR",
+            },
+            sameAs: [SITE_CONFIG.instagram, SITE_CONFIG.twitter].filter(Boolean),
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: SITE_CONFIG.name,
+            url: SITE_CONFIG.url,
+            potentialAction: {
+              "@type": "SearchAction",
+              target: `${SITE_CONFIG.url}/shop?q={search_term_string}`,
+              "query-input": "required name=search_term_string",
+            },
+          },
+        ]}
       />
       <SiteHeader />
 

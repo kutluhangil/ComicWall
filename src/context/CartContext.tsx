@@ -7,6 +7,13 @@ export interface CartItem {
   quantity: number;
 }
 
+export interface AppliedCoupon {
+  code: string;
+  discountType: "percent" | "fixed" | "free_shipping";
+  discountValue: number;
+  minOrderAmount: number;
+}
+
 interface CartContextType {
   items: CartItem[];
   addItem: (productId: string, size: PosterSize, quantity?: number) => void;
@@ -14,9 +21,14 @@ interface CartContextType {
   updateQuantity: (productId: string, size: PosterSize, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
+  coupon: AppliedCoupon | null;
+  applyCoupon: (coupon: AppliedCoupon) => void;
+  removeCoupon: () => void;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
+
+const COUPON_KEY = "comicwall-coupon";
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => {
@@ -28,9 +40,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   });
 
+  const [coupon, setCoupon] = useState<AppliedCoupon | null>(() => {
+    try {
+      const saved = localStorage.getItem(COUPON_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
   useEffect(() => {
     localStorage.setItem("comicwall-cart", JSON.stringify(items));
   }, [items]);
+
+  useEffect(() => {
+    if (coupon) {
+      localStorage.setItem(COUPON_KEY, JSON.stringify(coupon));
+    } else {
+      localStorage.removeItem(COUPON_KEY);
+    }
+  }, [coupon]);
 
   const addItem = (productId: string, size: PosterSize, quantity = 1) => {
     setItems((prev) => {
@@ -59,12 +88,30 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const clearCart = () => setItems([]);
+  const clearCart = () => {
+    setItems([]);
+    setCoupon(null);
+  };
+
+  const applyCoupon = (next: AppliedCoupon) => setCoupon(next);
+  const removeCoupon = () => setCoupon(null);
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems }}>
+    <CartContext.Provider
+      value={{
+        items,
+        addItem,
+        removeItem,
+        updateQuantity,
+        clearCart,
+        totalItems,
+        coupon,
+        applyCoupon,
+        removeCoupon,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
