@@ -80,7 +80,7 @@ const Checkout = () => {
     let shipping: typeof form;
     if (mode === "saved") {
       if (!selectedAddress) {
-        toast({ title: "Lütfen bir adres seçin", variant: "destructive" });
+        toast({ title: t("checkout.selectAddress"), variant: "destructive" });
         return;
       }
       shipping = {

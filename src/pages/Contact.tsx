@@ -12,7 +12,7 @@ const inputClass =
   "w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all";
 
 const Contact = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [sending, setSending] = useState(false);
 
@@ -31,11 +31,17 @@ const Contact = () => {
     setSending(false);
   };
 
+  const isEn = language === "en";
+
   return (
     <>
       <SEO
-        title="İletişim — ComicWall"
-        description="ComicWall müşteri desteği, sipariş, iade veya iş birliği için bize ulaşın."
+        title={isEn ? "Contact — ComicWall" : "İletişim — ComicWall"}
+        description={
+          isEn
+            ? "Reach ComicWall customer support for orders, returns or partnerships."
+            : "ComicWall müşteri desteği, sipariş, iade veya iş birliği için bize ulaşın."
+        }
         canonicalUrl="/contact"
       />
       <SiteHeader />
@@ -54,12 +60,12 @@ const Contact = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-10">
           <a href={`mailto:${SITE_CONFIG.email}`} className="bg-card border border-border rounded-2xl p-5 hover:border-primary/40 transition-colors">
             <Mail className="w-5 h-5 text-primary mb-3" />
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">E-posta</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{t("auth.email")}</p>
             <p className="text-sm text-foreground font-medium break-all">{SITE_CONFIG.email}</p>
           </a>
           <a href={`tel:${SITE_CONFIG.phone.replace(/\s/g, "")}`} className="bg-card border border-border rounded-2xl p-5 hover:border-primary/40 transition-colors">
             <Phone className="w-5 h-5 text-secondary mb-3" />
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Telefon</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{t("checkout.phone")}</p>
             <p className="text-sm text-foreground font-medium">{SITE_CONFIG.phone}</p>
           </a>
           <a
@@ -70,13 +76,13 @@ const Contact = () => {
           >
             <MessageCircle className="w-5 h-5 text-accent mb-3" />
             <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">WhatsApp</p>
-            <p className="text-sm text-foreground font-medium">Canlı Destek</p>
+            <p className="text-sm text-foreground font-medium">{t("contact.liveSupport")}</p>
           </a>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           <form onSubmit={handleSubmit} className="lg:col-span-2 bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-4">
-            <h2 className="font-bebas text-2xl tracking-wide text-foreground mb-2">Bize Yazın</h2>
+            <h2 className="font-bebas text-2xl tracking-wide text-foreground mb-2">{t("contact.writeUs")}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <input
                 required
@@ -126,16 +132,16 @@ const Contact = () => {
           <aside className="bg-card border border-border rounded-2xl p-6 space-y-4 h-fit">
             <div>
               <MapPin className="w-5 h-5 text-primary mb-2" />
-              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Adres</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{t("contact.address")}</p>
               <p className="text-sm text-foreground leading-relaxed">{SITE_CONFIG.address}</p>
             </div>
             <div className="border-t border-border pt-4">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Çalışma Saatleri</p>
-              <p className="text-sm text-foreground">Pazartesi – Cuma</p>
-              <p className="text-sm text-muted-foreground">09:00 – 18:00</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t("contact.hours")}</p>
+              <p className="text-sm text-foreground">{t("contact.hoursValue")}</p>
+              <p className="text-sm text-muted-foreground">{t("contact.hoursRange")}</p>
             </div>
             <div className="border-t border-border pt-4">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Kurumsal</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t("contact.corporate")}</p>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 {SITE_CONFIG.legalName}<br />
                 MERSİS: {SITE_CONFIG.mersis}

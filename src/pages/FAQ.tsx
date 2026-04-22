@@ -20,8 +20,9 @@ interface FaqGroup {
 }
 
 const FAQ = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [openKey, setOpenKey] = useState<string | null>("0-0");
+  const isEn = language === "en";
 
   const groups: FaqGroup[] = [
     {
@@ -122,8 +123,12 @@ const FAQ = () => {
   return (
     <>
       <SEO
-        title="Sıkça Sorulan Sorular — ComicWall"
-        description="ComicWall hakkında sıkça sorulan sorular: kargo, iade, ödeme, ürün kalitesi ve üyelik hakkında tüm cevaplar."
+        title={isEn ? "Frequently Asked Questions — ComicWall" : "Sıkça Sorulan Sorular — ComicWall"}
+        description={
+          isEn
+            ? "Answers to common ComicWall questions: shipping, returns, payment, product quality and membership."
+            : "ComicWall hakkında sıkça sorulan sorular: kargo, iade, ödeme, ürün kalitesi ve üyelik hakkında tüm cevaplar."
+        }
         canonicalUrl="/faq"
         jsonLd={{
           "@context": "https://schema.org",
@@ -194,16 +199,16 @@ const FAQ = () => {
 
         <div className="mt-16 bg-card border border-border rounded-2xl p-6 sm:p-8 text-center">
           <Mail className="w-6 h-6 text-primary mx-auto mb-3" />
-          <h3 className="font-bebas text-2xl tracking-wide text-foreground mb-2">Sorunuzu bulamadınız mı?</h3>
+          <h3 className="font-bebas text-2xl tracking-wide text-foreground mb-2">{t("faq.notFound")}</h3>
           <p className="text-sm text-muted-foreground mb-5 max-w-md mx-auto">
-            Destek ekibimiz Pazartesi–Cuma 09:00–18:00 saatleri arasında yanıt veriyor.
+            {t("faq.supportHours")}
           </p>
           <Link
             to="/contact"
             className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 text-sm uppercase tracking-widest font-bold rounded-2xl hover:bg-primary/90 transition-colors"
           >
             <Mail className="w-4 h-4" />
-            İletişime Geç
+            {t("faq.contactCta")}
           </Link>
         </div>
       </main>

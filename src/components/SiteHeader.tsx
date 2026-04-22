@@ -5,6 +5,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
+import LanguageToggle from "@/components/LanguageToggle";
 
 const SiteHeader = () => {
   const { totalItems } = useCart();
@@ -62,10 +63,14 @@ const SiteHeader = () => {
             <Search className="w-5 h-5" />
           </button>
 
+          <div className="hidden sm:flex">
+            <LanguageToggle />
+          </div>
+
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="text-foreground hover:text-primary transition-colors p-1.5 rounded-xl hover:bg-muted/50"
-            aria-label="Tema değiştir"
+            aria-label={theme === "dark" ? "Light mode" : "Dark mode"}
           >
             {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
@@ -151,6 +156,9 @@ const SiteHeader = () => {
           {!user && (
             <Link to="/login" onClick={() => setMenuOpen(false)} className="text-primary font-bold">{t("nav.login")}</Link>
           )}
+          <div className="pt-2 border-t border-border/50">
+            <LanguageToggle />
+          </div>
         </div>
       )}
     </header>

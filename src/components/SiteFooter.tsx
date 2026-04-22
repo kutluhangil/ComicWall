@@ -142,7 +142,7 @@ const SiteFooter = () => {
           </div>
 
           <div className="md:text-right">
-            <h4 className="font-semibold text-xs uppercase tracking-widest mb-3 text-foreground">Kurumsal</h4>
+            <h4 className="font-semibold text-xs uppercase tracking-widest mb-3 text-foreground">{t("footer.corporate")}</h4>
             <p className="text-xs text-muted-foreground leading-relaxed">
               {SITE_CONFIG.legalName}<br />
               MERSİS: {SITE_CONFIG.mersis}<br />
