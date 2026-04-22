@@ -1,20 +1,13 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 User-agent: *
 Allow: /
 
-# Sitemaps
-Sitemap: https://raya.photo/sitemap.xml
+# Özel sayfalar
+Disallow: /checkout
+Disallow: /cart
+Disallow: /profile
+Disallow: /orders
+Disallow: /wishlist
+Disallow: /order-success
+Disallow: /order-failed
 
-# Crawl-delay
-Crawl-delay: 1
+Sitemap: https://comicwall.com.tr/sitemap.xml

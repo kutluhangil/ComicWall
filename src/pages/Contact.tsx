@@ -1,165 +1,150 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import PortfolioHeader from "@/components/PortfolioHeader";
-import PortfolioFooter from "@/components/PortfolioFooter";
+import { Mail, Phone, MapPin, Send, MessageCircle } from "lucide-react";
+import { motion } from "motion/react";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/context/LanguageContext";
+import { SITE_CONFIG } from "@/lib/siteConfig";
+import { toast } from "@/hooks/use-toast";
 
-const contactSchema = z.object({
-  name: z.string().trim().min(1, { message: "Name is required" }).max(100, { message: "Name must be less than 100 characters" }),
-  email: z.string().trim().email({ message: "Invalid email address" }).max(255, { message: "Email must be less than 255 characters" }),
-  message: z.string().trim().min(1, { message: "Message is required" }).max(1000, { message: "Message must be less than 1000 characters" }),
-});
-
-type ContactFormValues = z.infer<typeof contactSchema>;
+const inputClass =
+  "w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all";
 
 const Contact = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+  const { t } = useLanguage();
+  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [sending, setSending] = useState(false);
 
-  const form = useForm<ContactFormValues>({
-    resolver: zodResolver(contactSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      message: "",
-    },
-  });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-  const onSubmit = async (data: ContactFormValues) => {
-    setIsSubmitting(true);
-    
-    // Simulate form submission
-    setTimeout(() => {
-      toast({
-        title: "Message sent",
-        description: "Thank you for your inquiry. I'll get back to you soon.",
-      });
-      form.reset();
-      setIsSubmitting(false);
-    }, 1000);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSending(true);
+    // Gerçek gönderim için bir edge function veya Resend entegrasyonu gerekir;
+    // şimdilik başarılı gönderim simülasyonu yapıyoruz.
+    await new Promise((r) => setTimeout(r, 700));
+    toast({ title: t("contact.success") });
+    setForm({ name: "", email: "", subject: "", message: "" });
+    setSending(false);
   };
 
   return (
     <>
       <SEO
-        title="Contact - Morgan Blake"
-        description="Get in touch with Morgan Blake for photography inquiries, production services, and collaboration opportunities."
+        title="İletişim — ComicWall"
+        description="ComicWall müşteri desteği, sipariş, iade veya iş birliği için bize ulaşın."
         canonicalUrl="/contact"
       />
+      <SiteHeader />
+      <main className="pt-24 pb-20 max-w-5xl mx-auto px-5 sm:px-6 lg:px-8 min-h-screen">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-12"
+        >
+          <p className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-2">{t("contact.badge")}</p>
+          <h1 className="font-bebas text-5xl md:text-6xl tracking-wide text-foreground">{t("contact.title")}</h1>
+          <p className="text-muted-foreground mt-3 max-w-xl mx-auto">{t("contact.desc")}</p>
+        </motion.div>
 
-      <PortfolioHeader
-        activeCategory=""
-      />
-      
-      <main className="min-h-screen">
-        <section className="max-w-[1600px] mx-auto px-3 md:px-5 pt-20 pb-12 md:pt-24 md:pb-16">
-          <div className="text-center space-y-4 mb-12">
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-inter">
-              INQUIRIES
-            </p>
-            <h1 className="font-playfair text-4xl md:text-5xl text-foreground">
-              Contact
-            </h1>
-            <p className="text-foreground/80 text-sm leading-relaxed max-w-xl mx-auto">
-              For project inquiries and collaborations.
-            </p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-10">
+          <a href={`mailto:${SITE_CONFIG.email}`} className="bg-card border border-border rounded-2xl p-5 hover:border-primary/40 transition-colors">
+            <Mail className="w-5 h-5 text-primary mb-3" />
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">E-posta</p>
+            <p className="text-sm text-foreground font-medium break-all">{SITE_CONFIG.email}</p>
+          </a>
+          <a href={`tel:${SITE_CONFIG.phone.replace(/\s/g, "")}`} className="bg-card border border-border rounded-2xl p-5 hover:border-primary/40 transition-colors">
+            <Phone className="w-5 h-5 text-secondary mb-3" />
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Telefon</p>
+            <p className="text-sm text-foreground font-medium">{SITE_CONFIG.phone}</p>
+          </a>
+          <a
+            href={`https://wa.me/${SITE_CONFIG.whatsapp}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-card border border-border rounded-2xl p-5 hover:border-accent/40 transition-colors"
+          >
+            <MessageCircle className="w-5 h-5 text-accent mb-3" />
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">WhatsApp</p>
+            <p className="text-sm text-foreground font-medium">Canlı Destek</p>
+          </a>
+        </div>
 
-          <div className="max-w-xl mx-auto">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm uppercase tracking-wider text-foreground/70 font-inter">
-                        Name *
-                      </FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Your name" 
-                          className="border-0 border-b border-foreground/20 rounded-none bg-transparent text-foreground px-0 focus-visible:ring-0 focus-visible:border-foreground transition-colors"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+          <form onSubmit={handleSubmit} className="lg:col-span-2 bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-4">
+            <h2 className="font-bebas text-2xl tracking-wide text-foreground mb-2">Bize Yazın</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <input
+                required
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                placeholder={t("contact.name")}
+                className={inputClass}
+              />
+              <input
+                required
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder={t("contact.email") || "E-posta"}
+                className={inputClass}
+              />
+            </div>
+            <input
+              required
+              name="subject"
+              value={form.subject}
+              onChange={handleChange}
+              placeholder={t("contact.subject")}
+              className={inputClass}
+            />
+            <textarea
+              required
+              name="message"
+              value={form.message}
+              onChange={handleChange}
+              placeholder={t("contact.message")}
+              rows={6}
+              className={`${inputClass} resize-none`}
+            />
+            <button
+              type="submit"
+              disabled={sending}
+              className="w-full sm:w-auto bg-primary text-primary-foreground px-6 py-3.5 text-sm uppercase tracking-widest font-bold rounded-2xl hover:bg-primary/90 transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2"
+            >
+              <Send className="w-4 h-4" />
+              {sending ? t("contact.sending") : t("contact.send")}
+            </button>
+          </form>
 
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm uppercase tracking-wider text-foreground/70 font-inter">
-                        Email *
-                      </FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="email" 
-                          placeholder="your@email.com" 
-                          className="border-0 border-b border-foreground/20 rounded-none bg-transparent text-foreground px-0 focus-visible:ring-0 focus-visible:border-foreground transition-colors"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="message"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm uppercase tracking-wider text-foreground/70 font-inter">
-                        Message *
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Tell me about your project..." 
-                          className="border-0 border-b border-foreground/20 rounded-none bg-transparent text-foreground min-h-[150px] px-0 focus-visible:ring-0 focus-visible:border-foreground transition-colors resize-none"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="pt-4 text-center">
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    variant="outline"
-                    className="w-full md:w-auto px-12 py-6 text-sm uppercase tracking-widest font-inter border-foreground/40 hover:bg-foreground hover:text-background transition-all"
-                  >
-                    {isSubmitting ? "Sending..." : "Send"}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </div>
-        </section>
+          <aside className="bg-card border border-border rounded-2xl p-6 space-y-4 h-fit">
+            <div>
+              <MapPin className="w-5 h-5 text-primary mb-2" />
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Adres</p>
+              <p className="text-sm text-foreground leading-relaxed">{SITE_CONFIG.address}</p>
+            </div>
+            <div className="border-t border-border pt-4">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Çalışma Saatleri</p>
+              <p className="text-sm text-foreground">Pazartesi – Cuma</p>
+              <p className="text-sm text-muted-foreground">09:00 – 18:00</p>
+            </div>
+            <div className="border-t border-border pt-4">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Kurumsal</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {SITE_CONFIG.legalName}<br />
+                MERSİS: {SITE_CONFIG.mersis}
+              </p>
+            </div>
+          </aside>
+        </div>
       </main>
-
-      <PortfolioFooter />
+      <SiteFooter />
     </>
   );
 };

@@ -7,13 +7,131 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.1"
   }
   public: {
     Tables: {
+      addresses: {
+        Row: {
+          address_line: string
+          city: string
+          country: string
+          created_at: string
+          first_name: string
+          id: string
+          identity_number: string | null
+          is_default: boolean
+          label: string
+          last_name: string
+          phone: string
+          postal_code: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address_line: string
+          city: string
+          country?: string
+          created_at?: string
+          first_name: string
+          id?: string
+          identity_number?: string | null
+          is_default?: boolean
+          label?: string
+          last_name: string
+          phone: string
+          postal_code: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address_line?: string
+          city?: string
+          country?: string
+          created_at?: string
+          first_name?: string
+          id?: string
+          identity_number?: string | null
+          is_default?: boolean
+          label?: string
+          last_name?: string
+          phone?: string
+          postal_code?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      coupons: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          min_order_amount: number
+          starts_at: string
+          used_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          discount_type: string
+          discount_value: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_order_amount?: number
+          starts_at?: string
+          used_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_order_amount?: number
+          starts_at?: string
+          used_count?: number
+        }
+        Relationships: []
+      }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          source: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean
+          source?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean
+          source?: string | null
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
@@ -60,42 +178,87 @@ export type Database = {
       }
       orders: {
         Row: {
+          coupon_code: string | null
           created_at: string
           currency: string
+          discount_amount: number
           id: string
           iyzico_conversation_id: string | null
           iyzico_payment_id: string | null
           iyzico_token: string | null
+          shipping_amount: number
           shipping_info: Json
           status: string
+          subtotal_amount: number | null
           total_amount: number
           updated_at: string
           user_id: string
         }
         Insert: {
+          coupon_code?: string | null
           created_at?: string
           currency?: string
+          discount_amount?: number
           id?: string
           iyzico_conversation_id?: string | null
           iyzico_payment_id?: string | null
           iyzico_token?: string | null
+          shipping_amount?: number
           shipping_info: Json
           status?: string
+          subtotal_amount?: number | null
           total_amount: number
           updated_at?: string
           user_id: string
         }
         Update: {
+          coupon_code?: string | null
           created_at?: string
           currency?: string
+          discount_amount?: number
           id?: string
           iyzico_conversation_id?: string | null
           iyzico_payment_id?: string | null
           iyzico_token?: string | null
+          shipping_amount?: number
           shipping_info?: Json
           status?: string
+          subtotal_amount?: number | null
           total_amount?: number
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      product_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          is_verified_purchase: boolean
+          product_id: string
+          rating: number
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          is_verified_purchase?: boolean
+          product_id: string
+          rating: number
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          is_verified_purchase?: boolean
+          product_id?: string
+          rating?: number
+          title?: string | null
           user_id?: string
         }
         Relationships: []

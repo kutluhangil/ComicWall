@@ -1,53 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  
-  <!-- Homepage -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://raya.photo/</loc>
-    <lastmod>2024-01-01</lastmod>
+    <loc>https://comicwall.com.tr/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
-  
-  <!-- About Page -->
   <url>
-    <loc>https://raya.photo/about</loc>
-    <lastmod>2024-01-01</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://comicwall.com.tr/shop</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://comicwall.com.tr/collections</loc>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  
-  <!-- Project: Alpine Light -->
   <url>
-    <loc>https://raya.photo/project/alpine-light</loc>
-    <lastmod>2024-01-01</lastmod>
+    <loc>https://comicwall.com.tr/contact</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.6</priority>
   </url>
-  
-  <!-- Project: Prairie Stories -->
   <url>
-    <loc>https://raya.photo/project/prairie-stories</loc>
-    <lastmod>2024-01-01</lastmod>
+    <loc>https://comicwall.com.tr/faq</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.6</priority>
   </url>
-  
-  <!-- Project: Homestead -->
   <url>
-    <loc>https://raya.photo/project/homestead</loc>
-    <lastmod>2024-01-01</lastmod>
+    <loc>https://comicwall.com.tr/shipping-returns</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.5</priority>
   </url>
-  
-  <!-- Project: Forgotten Roads -->
   <url>
-    <loc>https://raya.photo/project/forgotten-roads</loc>
-    <lastmod>2024-01-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <loc>https://comicwall.com.tr/collection/city-guardians</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
-
+  <url>
+    <loc>https://comicwall.com.tr/collection/avenger-series</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://comicwall.com.tr/product/dark-knight</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://comicwall.com.tr/product/cosmic-hero</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://comicwall.com.tr/product/speedster</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://comicwall.com.tr/product/warrior-queen</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://comicwall.com.tr/product/iron-titan</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://comicwall.com.tr/product/emerald-guardian</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://comicwall.com.tr/product/thunder-god</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://comicwall.com.tr/product/web-slinger</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://comicwall.com.tr/privacy</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://comicwall.com.tr/kvkk</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://comicwall.com.tr/terms</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://comicwall.com.tr/cookies</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
 </urlset>

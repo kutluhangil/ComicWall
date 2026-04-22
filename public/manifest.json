@@ -1,11 +1,12 @@
 {
-  "name": "Raya Photography",
-  "short_name": "Raya",
-  "description": "Contemporary landscape photography exploring the quiet beauty of rural spaces",
+  "name": "ComicWall — Premium Çizgi Roman Tarzı Posterler",
+  "short_name": "ComicWall",
+  "description": "Yapay zeka ile üretilmiş orijinal çizgi roman tarzı posterler. Süper kahraman temalı premium duvar sanatı.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#141414",
+  "theme_color": "#141414",
+  "lang": "tr",
   "icons": [
     {
       "src": "/favicon-16x16.png",

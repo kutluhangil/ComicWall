@@ -1,7 +1,5 @@
 import { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
-import Header from "./Header";
-import Footer from "./Footer";
 
 interface Props {
   children: ReactNode;
@@ -29,39 +27,33 @@ class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <>
-          <Header />
-          
-          <main id="main-content" className="min-h-screen flex items-center justify-center px-8 animate-fade-in">
-            <div className="text-center max-w-2xl">
-              <h1 className="text-7xl md:text-9xl font-light tracking-tight mb-8">
-                Error
-              </h1>
-              <p className="text-2xl md:text-3xl font-light tracking-tight mb-4">
-                Something went wrong
-              </p>
-              <p className="text-lg text-muted-foreground mb-12 max-w-md mx-auto">
-                We encountered an unexpected error. Please try refreshing the page or return home.
-              </p>
-              <div className="flex gap-4 justify-center flex-wrap">
-                <button
-                  onClick={() => window.location.reload()}
-                  className="inline-block px-8 py-3 bg-foreground text-background text-sm uppercase tracking-widest hover:opacity-90 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
-                >
-                  Refresh Page
-                </button>
-                <Link
-                  to="/"
-                  className="inline-block px-8 py-3 border-2 border-foreground text-sm uppercase tracking-widest hover:bg-foreground hover:text-background transition-all duration-300"
-                >
-                  Return Home
-                </Link>
-              </div>
+        <main className="min-h-screen flex items-center justify-center px-5 sm:px-8 bg-background">
+          <div className="text-center max-w-2xl">
+            <h1 className="font-bebas text-7xl md:text-9xl tracking-wide text-foreground mb-6">
+              Hata
+            </h1>
+            <p className="text-xl md:text-2xl font-medium text-foreground mb-3">
+              Beklenmedik bir hata oluştu
+            </p>
+            <p className="text-base text-muted-foreground mb-10 max-w-md mx-auto">
+              Üzgünüz, bir şeyler ters gitti. Lütfen sayfayı yenileyin veya ana sayfaya dönün.
+            </p>
+            <div className="flex gap-3 justify-center flex-wrap">
+              <button
+                onClick={() => window.location.reload()}
+                className="inline-block px-8 py-3.5 bg-primary text-primary-foreground text-sm uppercase tracking-widest font-bold rounded-2xl hover:bg-primary/90 transition-colors"
+              >
+                Sayfayı Yenile
+              </button>
+              <Link
+                to="/"
+                className="inline-block px-8 py-3.5 border border-border text-foreground text-sm uppercase tracking-widest font-bold rounded-2xl hover:bg-muted transition-colors"
+              >
+                Ana Sayfa
+              </Link>
             </div>
-          </main>
-
-          <Footer />
-        </>
+          </div>
+        </main>
       );
     }
 
