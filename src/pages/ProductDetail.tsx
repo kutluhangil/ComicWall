@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Minus, Plus, ShoppingCart, Zap, Heart, Share2, Truck, RotateCcw, ShieldCheck, Printer } from "lucide-react";
 import { getProduct, getCollectionProducts, products, SIZES, type PosterSize } from "@/data/products";
 import { useCart } from "@/context/CartContext";
@@ -10,7 +10,7 @@ import ProductReviews from "@/components/ProductReviews";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { formatPrice } from "@/lib/format";
 import { recordRecentlyViewed, useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { SITE_CONFIG } from "@/lib/siteConfig";
@@ -26,8 +26,21 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState<PosterSize>("13x18");
   const [quantity, setQuantity] = useState(1);
   const [rating, setRating] = useState<{ avg: number; count: number }>({ avg: 0, count: 0 });
+  const [stickyVisible, setStickyVisible] = useState(false);
+  const addBtnRef = useRef<HTMLDivElement>(null);
 
   const recentIds = useRecentlyViewed(product?.id);
+
+  useEffect(() => {
+    const el = addBtnRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setStickyVisible(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [product?.id]);
 
   useEffect(() => {
     if (product) {
@@ -134,7 +147,7 @@ const ProductDetail = () => {
         jsonLd={productJsonLd}
       />
       <SiteHeader />
-      <main className="pt-24 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-20">
+      <main className="pt-[var(--header-h)] max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -218,7 +231,7 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8">
+            <div ref={addBtnRef} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8">
               <button
                 onClick={() => addItem(product.id, selectedSize, quantity)}
                 className="flex-1 bg-foreground text-background px-6 py-3.5 text-sm uppercase tracking-widest font-bold hover:bg-primary hover:text-primary-foreground transition-colors rounded-2xl inline-flex items-center justify-center gap-2"
@@ -280,6 +293,48 @@ const ProductDetail = () => {
           </section>
         )}
       </main>
+
+      {/* ─── Sticky Add-to-Cart Bar ───────────────────────────────── */}
+      <AnimatePresence>
+        {stickyVisible && (
+          <motion.div
+            initial={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 80, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="fixed bottom-16 md:bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-2xl border-t border-border shadow-xl"
+          >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-4">
+              <div className="w-10 h-14 rounded-xl overflow-hidden border border-border flex-shrink-0">
+                <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bebas text-lg tracking-wide text-foreground truncate">{product.title}</p>
+                <p className="text-sm text-primary font-semibold">{formatPrice(product.prices[selectedSize])}</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => addItem(product.id, selectedSize, quantity)}
+                  className="bg-foreground text-background px-4 sm:px-6 py-2.5 text-xs uppercase tracking-widest font-bold hover:bg-primary hover:text-primary-foreground transition-colors rounded-xl inline-flex items-center gap-1.5 whitespace-nowrap"
+                >
+                  <ShoppingCart className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">{t("product.addToCart")}</span>
+                  <span className="sm:hidden">{t("product.addToCart")}</span>
+                </button>
+                <Link
+                  to="/cart"
+                  onClick={() => addItem(product.id, selectedSize, quantity)}
+                  className="bg-primary text-primary-foreground px-4 sm:px-6 py-2.5 text-xs uppercase tracking-widest font-bold hover:bg-primary/90 transition-colors rounded-xl inline-flex items-center gap-1.5 whitespace-nowrap"
+                >
+                  <Zap className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">{t("product.buyNow")}</span>
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <SiteFooter />
     </>
   );

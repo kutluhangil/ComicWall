@@ -98,7 +98,7 @@ const Shop = () => {
         canonicalUrl="/shop"
       />
       <SiteHeader />
-      <main className="pt-24 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-20">
+      <main className="pt-[var(--header-h)] max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-20">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-8 gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-2">{t("shop.badge")}</p>

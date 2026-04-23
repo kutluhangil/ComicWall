@@ -87,6 +87,7 @@ const SiteFooter = () => {
           <div>
             <h4 className="font-semibold text-xs uppercase tracking-widest mb-4 text-foreground">{t("footer.info")}</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
+              <li><Link to="/about" className="hover:text-foreground transition-colors">{t("about.title")}</Link></li>
               <li><Link to="/shipping-returns" className="hover:text-foreground transition-colors">{t("footer.shippingReturns")}</Link></li>
               <li><Link to="/contact" className="hover:text-foreground transition-colors">{t("footer.contact")}</Link></li>
               <li><Link to="/faq" className="hover:text-foreground transition-colors">{t("footer.faq")}</Link></li>

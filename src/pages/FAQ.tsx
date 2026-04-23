@@ -143,7 +143,7 @@ const FAQ = () => {
         }}
       />
       <SiteHeader />
-      <main className="pt-24 pb-20 max-w-4xl mx-auto px-5 sm:px-6 lg:px-8 min-h-screen">
+      <main className="pt-[var(--header-h)] pb-20 max-w-4xl mx-auto px-5 sm:px-6 lg:px-8 min-h-screen">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

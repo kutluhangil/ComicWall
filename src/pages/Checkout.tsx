@@ -189,7 +189,7 @@ const Checkout = () => {
         noindex
       />
       <SiteHeader />
-      <main className="pt-24 max-w-5xl mx-auto px-5 sm:px-6 lg:px-8 pb-20 min-h-screen">
+      <main className="pt-[var(--header-h)] max-w-5xl mx-auto px-5 sm:px-6 lg:px-8 pb-20 min-h-screen">
         <h1 className="font-bebas text-4xl sm:text-5xl tracking-wide text-foreground mb-2">{t("checkout.title")}</h1>
         <p className="text-sm text-muted-foreground mb-8 flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-accent" /> 256-bit SSL ile güvenli ödeme — iyzico

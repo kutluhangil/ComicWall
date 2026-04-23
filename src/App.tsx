@@ -25,6 +25,7 @@ import OrderFailed from "./pages/OrderFailed";
 import NotFound from "./pages/NotFound";
 import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
+import About from "./pages/About";
 import Privacy from "./pages/legal/Privacy";
 import Kvkk from "./pages/legal/Kvkk";
 import Terms from "./pages/legal/Terms";
@@ -65,6 +66,7 @@ const App = () => (
                       <Route path="/order-failed" element={<OrderFailed />} />
                       <Route path="/contact" element={<Contact />} />
                       <Route path="/faq" element={<FAQ />} />
+                      <Route path="/about" element={<About />} />
                       <Route path="/privacy" element={<Privacy />} />
                       <Route path="/kvkk" element={<Kvkk />} />
                       <Route path="/terms" element={<Terms />} />

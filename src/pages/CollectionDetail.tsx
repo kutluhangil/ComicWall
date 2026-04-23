@@ -41,7 +41,7 @@ const CollectionDetail = () => {
     <>
       <SEO title={`${collection.title} — ComicWall`} description={collection.description} canonicalUrl={`/collection/${collection.slug}`} />
       <SiteHeader />
-      <main className="pt-24 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-20">
+      <main className="pt-[var(--header-h)] max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-20">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <p className="text-xs uppercase tracking-[0.3em] text-secondary font-semibold mb-2">{t("collectionDetail.badge")}</p>
           <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl tracking-wide text-foreground">{collection.title}</h1>

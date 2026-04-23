@@ -336,6 +336,33 @@ const tr: Record<string, string> = {
   "notFound.desc": "Aradığınız sayfa mevcut değil veya taşınmış.",
   "notFound.returnHome": "Ana Sayfaya Dön",
 
+  // Announcement bar
+  "announcement.text": "🚚 Ücretsiz Kargo — 500₺ ve üzeri tüm siparişlerde.",
+  "announcement.cta": "Hemen Alışveriş Yap",
+
+  // About page
+  "about.badge": "Hikayemiz",
+  "about.title": "Hakkımızda",
+  "about.missionBadge": "Misyon",
+  "about.missionTitle": "Sanatı Herkese Ulaştırıyoruz",
+  "about.missionDesc": "ComicWall, yüksek kaliteli duvar sanatının yalnızca büyük bütçelere sahip olanların ayrıcalığı olmadığına inanıyor. Yapay zeka teknolojisiyle ürettiğimiz özgün posterler, hem sanat tutkunları hem de koleksiyoncular için çıtayı yeniden çiziyor.",
+  "about.aiBadge": "Teknoloji",
+  "about.aiTitle": "Neden Yapay Zeka Sanatı?",
+  "about.aiDesc": "Lisanslı karakter veya telifli içerik yerine tamamen özgün eserler üretiyoruz. Her tasarım, ComicWall'un estetik rehberliğinde yapay zeka tarafından oluşturulur — benzersiz, cesur ve tamamen yasal. Siz de duvarınıza asarken hiçbir şeyden endişe etmezsiniz.",
+  "about.valuesBadge": "Değerlerimiz",
+  "about.valuesTitle": "Bizi Tanımlayan Dört İlke",
+  "about.v1.title": "Özgünlük",
+  "about.v1.desc": "Hiçbir eser bir diğerinin kopyası değil. Her poster biricik ve özgün.",
+  "about.v2.title": "Kalite",
+  "about.v2.desc": "250 gsm mat fotoğraf kağıdı, pigment mürekkep, yıllarca solmaz renkler.",
+  "about.v3.title": "Şeffaflık",
+  "about.v3.desc": "Telifsiz içerik, net fiyatlandırma ve eksiksiz yasal belgeler.",
+  "about.v4.title": "Erişilebilirlik",
+  "about.v4.desc": "Her bütçeye uygun boyutlar ve Türkiye'nin her köşesine hızlı teslimat.",
+  "about.ctaTitle": "Koleksiyonu Keşfet",
+  "about.ctaDesc": "Özgün tasarımlar arasından duvarına yakışanı bul.",
+  "about.cta": "Mağazaya Git",
+
   // Trust strip
   "trust.print": "250 gsm Mat Baskı",
   "trust.printDesc": "Müze kalitesinde pigment mürekkep",
@@ -695,6 +722,33 @@ const en: Record<string, string> = {
   "notFound.title": "Page Not Found",
   "notFound.desc": "The page you're looking for doesn't exist or has moved.",
   "notFound.returnHome": "Back to Home",
+
+  // Announcement bar
+  "announcement.text": "🚚 Free Shipping — on all orders over 500 TL.",
+  "announcement.cta": "Shop Now",
+
+  // About page
+  "about.badge": "Our Story",
+  "about.title": "About Us",
+  "about.missionBadge": "Mission",
+  "about.missionTitle": "Making Art Accessible to Everyone",
+  "about.missionDesc": "ComicWall believes high-quality wall art shouldn't be exclusive to big budgets. Our AI-generated original posters redefine what's possible for art lovers and collectors alike.",
+  "about.aiBadge": "Technology",
+  "about.aiTitle": "Why AI Art?",
+  "about.aiDesc": "Instead of licensed characters or copyrighted content, we create entirely original works. Every design is crafted under ComicWall's creative direction — unique, striking, and completely legal.",
+  "about.valuesBadge": "Our Values",
+  "about.valuesTitle": "Four Principles That Define Us",
+  "about.v1.title": "Originality",
+  "about.v1.desc": "No piece is a copy of another. Every poster is one of a kind.",
+  "about.v2.title": "Quality",
+  "about.v2.desc": "250gsm matte photo paper, pigment ink, fade-resistant colors.",
+  "about.v3.title": "Transparency",
+  "about.v3.desc": "Copyright-free content, clear pricing, and full legal documentation.",
+  "about.v4.title": "Accessibility",
+  "about.v4.desc": "Sizes for every budget, fast delivery across Turkey.",
+  "about.ctaTitle": "Explore the Collection",
+  "about.ctaDesc": "Find the perfect piece for your wall from our original designs.",
+  "about.cta": "Go to Shop",
 
   // Trust strip
   "trust.print": "250gsm Matte Print",

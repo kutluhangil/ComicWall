@@ -36,7 +36,7 @@ const Cart = () => {
         noindex
       />
       <SiteHeader />
-      <main className="pt-24 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-20 min-h-screen">
+      <main className="pt-[var(--header-h)] max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-20 min-h-screen">
         <h1 className="font-bebas text-4xl sm:text-5xl tracking-wide text-foreground mb-8 italic">{t("cart.title")}</h1>
 
         {cartProducts.length === 0 ? (

@@ -28,7 +28,7 @@ const Wishlist = () => {
     <>
       <SEO title={`${t("wishlist.title")} — ComicWall`} description="Your saved posters" canonicalUrl="/wishlist" />
       <SiteHeader />
-      <main className="pt-24 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-20 min-h-screen">
+      <main className="pt-[var(--header-h)] max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-20 min-h-screen">
         <div className="mb-10">
           <p className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-2">{t("wishlist.badge")}</p>
           <h1 className="font-bebas text-5xl md:text-6xl tracking-wide text-foreground">{t("wishlist.title")}</h1>

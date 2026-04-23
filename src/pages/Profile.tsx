@@ -49,7 +49,7 @@ const Profile = () => {
         noindex
       />
       <SiteHeader />
-      <main className="pt-24 pb-20 min-h-screen max-w-2xl mx-auto px-5">
+      <main className="pt-[var(--header-h)] pb-20 min-h-screen max-w-2xl mx-auto px-5">
         <h1 className="font-bebas text-4xl sm:text-5xl tracking-wide text-foreground mb-8">{t("profile.title")}</h1>
 
         <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-6">

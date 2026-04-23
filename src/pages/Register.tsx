@@ -39,7 +39,7 @@ const Register = () => {
     <>
       <SEO title={`${t("auth.register")} — ComicWall`} description="Create your account" canonicalUrl="/register" />
       <SiteHeader />
-      <main className="pt-24 pb-20 min-h-screen flex items-center justify-center px-5">
+      <main className="pt-[var(--header-h)] pb-20 min-h-screen flex items-center justify-center px-5">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h1 className="font-bebas text-4xl sm:text-5xl tracking-wide text-foreground">{t("auth.register")}</h1>

@@ -21,7 +21,7 @@ const LegalLayout = ({ title, seoTitle, seoDescription, canonicalUrl, lastUpdate
     <>
       <SEO title={seoTitle} description={seoDescription} canonicalUrl={canonicalUrl} />
       <SiteHeader />
-      <main className="pt-24 pb-20 max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 min-h-screen">
+      <main className="pt-[var(--header-h)] pb-20 max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 min-h-screen">
         <header className="mb-10 border-b border-border pb-6">
           <p className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-2">{t("legal.badge")}</p>
           <h1 className="font-bebas text-4xl sm:text-5xl tracking-wide text-foreground">{title}</h1>
