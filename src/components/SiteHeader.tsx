@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ShoppingCart, Menu, X, Sun, Moon, User, Heart, Package, Search } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -17,6 +17,17 @@ const SiteHeader = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActive = (path: string) =>
+    path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
+
+  const navLink = (path: string) =>
+    `transition-colors border-b-2 pb-0.5 ${
+      isActive(path)
+        ? "text-foreground border-primary"
+        : "text-muted-foreground hover:text-foreground border-transparent hover:border-foreground/20"
+    }`;
 
   useEffect(() => {
     if (searchOpen) {
@@ -45,11 +56,12 @@ const SiteHeader = () => {
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium uppercase tracking-widest">
-          <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">{t("nav.home")}</Link>
-          <Link to="/shop" className="text-muted-foreground hover:text-foreground transition-colors">{t("nav.shop")}</Link>
-          <Link to="/collections" className="text-muted-foreground hover:text-foreground transition-colors">{t("nav.collections")}</Link>
+          <Link to="/" className={navLink("/")}>{t("nav.home")}</Link>
+          <Link to="/shop" className={navLink("/shop")}>{t("nav.shop")}</Link>
+          <Link to="/collections" className={navLink("/collections")}>{t("nav.collections")}</Link>
+          <Link to="/faq" className={navLink("/faq")}>{t("nav.faq")}</Link>
           {user && (
-            <Link to="/orders" className="text-muted-foreground hover:text-foreground transition-colors">{t("nav.orders")}</Link>
+            <Link to="/orders" className={navLink("/orders")}>{t("nav.orders")}</Link>
           )}
         </nav>
 
@@ -75,11 +87,9 @@ const SiteHeader = () => {
             {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
 
-          {user && (
-            <Link to="/wishlist" className="text-foreground hover:text-primary transition-colors p-1.5 hidden sm:block" aria-label={t("nav.wishlist")}>
-              <Heart className="w-5 h-5" />
-            </Link>
-          )}
+          <Link to="/wishlist" className={`transition-colors p-1.5 hidden sm:block ${isActive("/wishlist") ? "text-primary" : "text-foreground hover:text-primary"}`} aria-label={t("nav.wishlist")}>
+            <Heart className="w-5 h-5" />
+          </Link>
 
           <Link to="/cart" className="relative text-foreground hover:text-primary transition-colors p-1.5" aria-label={t("cart.title")}>
             <ShoppingCart className="w-5 h-5" />
