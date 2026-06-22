@@ -9,6 +9,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/format";
+import OrderTimeline from "@/components/OrderTimeline";
 
 interface OrderItem {
   id: string;
@@ -114,6 +115,10 @@ const Orders = () => {
                     </span>
                     <span className="font-bebas text-2xl text-primary">{formatPrice(Number(order.total_amount))}</span>
                   </div>
+                </div>
+
+                <div className="border-t border-border pt-3 mb-1">
+                  <OrderTimeline status={order.status} />
                 </div>
 
                 <div className="border-t border-border pt-3">

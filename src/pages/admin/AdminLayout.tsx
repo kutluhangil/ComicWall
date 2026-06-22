@@ -6,6 +6,7 @@ import { useIsAdmin } from "@/hooks/useAdmin";
 import SEO from "@/components/SEO";
 
 const navItems = [
+  { to: "/admin/dashboard", label: "Panel", icon: LayoutDashboard, end: false },
   { to: "/admin", label: "Siparişler", icon: ShoppingBag, end: true },
   { to: "/admin/products", label: "Ürünler & Stok", icon: Package, end: false },
   { to: "/admin/coupons", label: "Kuponlar", icon: Ticket, end: false },

@@ -33,6 +33,7 @@ import PreInfo from "./pages/legal/PreInfo";
 import Cookies from "./pages/legal/Cookies";
 import ShippingReturns from "./pages/legal/ShippingReturns";
 import AdminLayout from "./pages/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminCoupons from "./pages/admin/AdminCoupons";
@@ -79,6 +80,7 @@ const App = () => (
                       <Route path="/shipping-returns" element={<ShippingReturns />} />
                       <Route path="/admin" element={<AdminLayout />}>
                         <Route index element={<AdminOrders />} />
+                        <Route path="dashboard" element={<AdminDashboard />} />
                         <Route path="products" element={<AdminProducts />} />
                         <Route path="coupons" element={<AdminCoupons />} />
                       </Route>

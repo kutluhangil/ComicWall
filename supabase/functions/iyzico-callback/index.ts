@@ -145,6 +145,14 @@ Deno.serve(async (req) => {
       if (order) {
         await incrementCouponUsage(adminClient, (order.coupon_code as string | null) ?? null);
         await sendOrderEmail(order as Record<string, unknown>);
+
+        // Stok düşümü (best-effort). Migration uygulanmadan önce fonksiyon yoksa
+        // hata loglanır ama redirect akışı bozulmaz.
+        try {
+          await adminClient.rpc("apply_order_stock", { _order_id: orderId });
+        } catch (e) {
+          console.error("Stock decrement failed:", e);
+        }
       }
 
       return Response.redirect(`${origin}/order-success?orderId=${orderId}`, 303);
