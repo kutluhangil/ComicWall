@@ -218,7 +218,9 @@ const Orders = () => {
                 <div className="border-t border-border pt-3 mt-3">
                   {order.refund_status && order.refund_status !== "none" ? (
                     <span className={`inline-block px-3 py-1.5 text-[10px] uppercase tracking-widest font-bold rounded-xl ${REFUND_BADGE_COLORS[order.refund_status] || "bg-muted text-muted-foreground"}`}>
-                      {REFUND_BADGES[order.refund_status] || order.refund_status}
+                      {order.refund_status === "requested" && ["paid", "preparing"].includes(order.status)
+                        ? "İptal talebiniz alındı"
+                        : REFUND_BADGES[order.refund_status] || order.refund_status}
                     </span>
                   ) : REFUND_ELIGIBLE_STATUSES.includes(order.status) ? (
                     refundOpenId === order.id ? (
@@ -226,7 +228,7 @@ const Orders = () => {
                         <textarea
                           value={refundReason}
                           onChange={(e) => setRefundReason(e.target.value)}
-                          placeholder="İade sebebinizi yazın..."
+                          placeholder={["paid", "preparing"].includes(order.status) ? "Lütfen iptal etme sebebinizi yazın..." : "Lütfen iade sebebinizi yazın..."}
                           rows={3}
                           className="w-full bg-muted border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
                         />
@@ -237,7 +239,7 @@ const Orders = () => {
                             onClick={() => handleRefundSubmit(order.id)}
                             className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 text-xs uppercase tracking-widest font-bold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50"
                           >
-                            {refundSubmitting ? "Gönderiliyor..." : "Gönder"}
+                            {refundSubmitting ? "Gönderiliyor..." : ["paid", "preparing"].includes(order.status) ? "Siparişi İptal Et" : "İade Talebi Gönder"}
                           </button>
                           <button
                             type="button"
@@ -257,7 +259,7 @@ const Orders = () => {
                         onClick={() => setRefundOpenId(order.id)}
                         className="inline-flex items-center gap-2 border border-border text-foreground px-4 py-2 text-xs uppercase tracking-widest font-bold rounded-xl hover:border-primary/50 transition-colors"
                       >
-                        <RotateCcw className="w-3.5 h-3.5" /> İade talep et
+                        <RotateCcw className="w-3.5 h-3.5" /> {["paid", "preparing"].includes(order.status) ? "Siparişi İptal Et" : "Kolay İade Talebi"}
                       </button>
                     )
                   ) : null}

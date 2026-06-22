@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Minus, Plus, ShoppingCart, Zap, Heart, Share2, Truck, RotateCcw, ShieldCheck, Printer } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Zap, Heart, Share2, Truck, RotateCcw, ShieldCheck, Printer, X } from "lucide-react";
 import { SIZES, type PosterSize, type Product } from "@/data/products";
 import { useProduct, useProducts } from "@/hooks/useCatalog";
 import { useCart } from "@/context/CartContext";
@@ -29,6 +29,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [rating, setRating] = useState<{ avg: number; count: number }>({ avg: 0, count: 0 });
   const [stickyVisible, setStickyVisible] = useState(false);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
   const addBtnRef = useRef<HTMLDivElement>(null);
 
   const recentIds = useRecentlyViewed(product?.id);
@@ -160,7 +161,7 @@ const ProductDetail = () => {
             transition={{ duration: 0.6 }}
             className="aspect-[3/4] bg-card rounded-2xl overflow-hidden border border-border"
           >
-            <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
+            <img src={product.image} alt={product.title} className="w-full h-full object-cover" fetchPriority="high" />
           </motion.div>
 
           <motion.div
@@ -203,14 +204,26 @@ const ProductDetail = () => {
             <p className="text-muted-foreground mt-4 leading-relaxed text-sm sm:text-base">{product.description}</p>
 
             <div className="mt-6 sm:mt-8">
-              <p className="text-xs uppercase tracking-widest font-semibold text-foreground mb-3">{t("product.size")}</p>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs uppercase tracking-widest font-semibold text-foreground">{t("product.size")}</p>
+                <button
+                  type="button"
+                  onClick={() => setShowSizeGuide(true)}
+                  className="text-xs text-primary hover:underline font-semibold"
+                >
+                  Ebat Rehberi
+                </button>
+              </div>
               <div className="flex gap-2 sm:gap-3">
                 {SIZES.map((s) => {
                   const sizeSoldOut = product.variantStock?.[s.value] === 0;
                   return (
                     <button
                       key={s.value}
-                      onClick={() => setSelectedSize(s.value)}
+                      onClick={() => {
+                        setSelectedSize(s.value);
+                        setQuantity(1);
+                      }}
                       disabled={sizeSoldOut}
                       className={`px-3 sm:px-4 py-2 text-sm rounded-xl border transition-all duration-200 ${
                         sizeSoldOut
@@ -225,6 +238,14 @@ const ProductDetail = () => {
                   );
                 })}
               </div>
+
+              {product.variantStock?.[selectedSize] !== undefined && 
+               product.variantStock[selectedSize]! > 0 && 
+               product.variantStock[selectedSize]! <= 5 && (
+                <p className="text-xs font-semibold text-accent mt-2 animate-pulse">
+                  ⚠️ Acele edin! Seçilen boyutta son {product.variantStock[selectedSize]} ürün kaldı.
+                </p>
+              )}
             </div>
 
             <p className="font-bebas text-3xl sm:text-4xl text-foreground mt-6">{formatPrice(price)}</p>
@@ -236,7 +257,17 @@ const ProductDetail = () => {
                   <Minus className="w-4 h-4" />
                 </button>
                 <span className="px-4 py-2 text-sm font-semibold text-foreground">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="px-3 py-2 text-foreground hover:bg-muted transition-colors rounded-r-xl">
+                <button 
+                  onClick={() => {
+                    const maxStock = product.variantStock?.[selectedSize] ?? 999;
+                    if (quantity >= maxStock) {
+                      toast({ title: `Stok limiti: Seçilen boyutta maksimum ${maxStock} adet alabilirsiniz.`, variant: "destructive" });
+                      return;
+                    }
+                    setQuantity(quantity + 1);
+                  }} 
+                  className="px-3 py-2 text-foreground hover:bg-muted transition-colors rounded-r-xl"
+                >
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
@@ -371,6 +402,63 @@ const ProductDetail = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Boyut ve Çerçeve Rehberi (Size Guide) Modalı */}
+      {showSizeGuide && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-card border border-border rounded-3xl w-full max-w-md overflow-hidden flex flex-col shadow-2xl">
+            <div className="p-6 border-b border-border flex items-center justify-between">
+              <h2 className="font-bebas text-2xl tracking-wide text-foreground">Boyut & Ebat Rehberi</h2>
+              <button
+                type="button"
+                onClick={() => setShowSizeGuide(false)}
+                className="text-muted-foreground hover:text-foreground p-1 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+                aria-label="Kapat"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-muted-foreground">
+                ComicWall posterleri üç farklı standart ebatta üretilmektedir. Odanız için en uygun ebadı seçebilirsiniz:
+              </p>
+              
+              <div className="space-y-3">
+                {([
+                  { size: "10x15 cm", desc: "Fotoğraf boyutu. Çalışma masaları, raflar ve komodinler için idealdir (A6 yakın)." },
+                  { size: "13x18 cm", desc: "Küçük duvar posteri. Kitaplık üstleri veya çoklu galeri duvarları için idealdir (A5 yakın)." },
+                  { size: "20x30 cm", desc: "Orta boy poster. Tekli asımlar veya minimalist oda dekorları için mükemmeldir (A4 yakın)." },
+                ] as const).map((item, i) => (
+                  <div key={item.size} className="flex gap-4 p-3 bg-muted/30 border border-border rounded-2xl items-center">
+                    <div
+                      className="bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{
+                        width: `${40 + i * 10}px`,
+                        height: `${55 + i * 15}px`,
+                      }}
+                    >
+                      <span className="text-[10px] text-primary font-semibold">{item.size.split(" ")[0]}</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{item.size}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="p-6 border-t border-border flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowSizeGuide(false)}
+                className="bg-primary text-primary-foreground px-6 py-2.5 text-xs uppercase tracking-widest font-bold rounded-2xl hover:bg-primary/90 transition-colors"
+              >
+                Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <SiteFooter />
     </>

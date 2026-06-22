@@ -29,7 +29,12 @@ interface ShippingInfo {
   city: string;
   postalCode: string;
   country: string;
+  invoiceType?: string;
   identityNumber?: string;
+  companyName?: string;
+  taxOffice?: string;
+  taxNumber?: string;
+  district?: string;
 }
 
 interface RequestBody {
@@ -279,7 +284,9 @@ Deno.serve(async (req) => {
         surname: shipping.lastName,
         gsmNumber: shipping.phone,
         email: shipping.email,
-        identityNumber: shipping.identityNumber || "11111111111",
+        identityNumber: shipping.invoiceType === "corporate" 
+          ? (shipping.taxNumber || "11111111111") 
+          : (shipping.identityNumber || "11111111111"),
         registrationAddress: shipping.address,
         ip: req.headers.get("x-forwarded-for")?.split(",")[0] || "85.34.78.112",
         city: shipping.city,

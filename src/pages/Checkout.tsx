@@ -12,8 +12,10 @@ import AddressBook, { type Address } from "@/components/AddressBook";
 import { toast } from "@/hooks/use-toast";
 import { formatPrice } from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
-import { ShieldCheck, Lock, BookUser, Pencil } from "lucide-react";
+import { ShieldCheck, Lock, BookUser, Pencil, X } from "lucide-react";
 import { calculateOrderTotals } from "@/lib/pricing";
+import { TR_CITIES } from "@/data/trCities";
+import { SITE_CONFIG } from "@/lib/siteConfig";
 
 const inputClass =
   "bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all";
@@ -52,12 +54,19 @@ const Checkout = () => {
     lastName: "",
     email: user?.email || "",
     phone: "",
+    invoiceType: "individual",
+    identityNumber: "",
+    companyName: "",
+    taxOffice: "",
+    taxNumber: "",
     address: "",
     city: "",
+    district: "",
     postalCode: "",
     country: "Türkiye",
-    identityNumber: "",
   });
+  const [carrier, setCarrier] = useState<string>("yurtici");
+  const [showTermsModal, setShowTermsModal] = useState<'none' | 'pre-info' | 'terms'>('none');
 
   useEffect(() => {
     if (user?.email && !form.email) {
@@ -101,7 +110,7 @@ const Checkout = () => {
       activeUser = data.user;
     }
 
-    let shipping: typeof form;
+    let shipping: typeof form & { carrier: string };
     if (mode === "saved") {
       if (!selectedAddress) {
         toast({ title: t("checkout.selectAddress"), variant: "destructive" });
@@ -112,14 +121,20 @@ const Checkout = () => {
         lastName: selectedAddress.last_name,
         email: form.email || activeUser.email || "",
         phone: selectedAddress.phone,
+        invoiceType: selectedAddress.invoice_type || "individual",
+        identityNumber: selectedAddress.identity_number || "",
+        companyName: selectedAddress.company_name || "",
+        taxOffice: selectedAddress.tax_office || "",
+        taxNumber: selectedAddress.tax_number || "",
         address: selectedAddress.address_line,
         city: selectedAddress.city,
+        district: selectedAddress.district || "",
         postalCode: selectedAddress.postal_code,
         country: selectedAddress.country,
-        identityNumber: selectedAddress.identity_number || form.identityNumber,
+        carrier,
       };
     } else {
-      shipping = form;
+      shipping = { ...form, carrier };
     }
 
     setLoading(true);
@@ -131,10 +146,14 @@ const Checkout = () => {
             label: "Teslimat Adresi",
             first_name: shipping.firstName,
             last_name: shipping.lastName,
-            phone: shipping.phone,
-            identity_number: shipping.identityNumber || null,
+            invoice_type: shipping.invoiceType,
+            identity_number: shipping.invoiceType === "individual" ? (shipping.identityNumber || null) : null,
+            company_name: shipping.invoiceType === "corporate" ? (shipping.companyName || null) : null,
+            tax_office: shipping.invoiceType === "corporate" ? (shipping.taxOffice || null) : null,
+            tax_number: shipping.invoiceType === "corporate" ? (shipping.taxNumber || null) : null,
             address_line: shipping.address,
             city: shipping.city,
+            district: shipping.district || null,
             postal_code: shipping.postalCode,
             country: shipping.country,
           });
@@ -266,15 +285,131 @@ const Checkout = () => {
                 />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <input required name="firstName" value={form.firstName} onChange={handleChange} placeholder={t("checkout.firstName")} className={inputClass} />
-                  <input required name="lastName" value={form.lastName} onChange={handleChange} placeholder={t("checkout.lastName")} className={inputClass} />
-                  <input required name="email" value={form.email} onChange={handleChange} placeholder={t("checkout.email")} type="email" className={`sm:col-span-2 ${inputClass}`} />
-                  <input required name="phone" value={form.phone} onChange={handleChange} placeholder={`${t("checkout.phone")} (örn: +905551234567)`} type="tel" className={inputClass} />
-                  <input required name="identityNumber" value={form.identityNumber} onChange={handleChange} placeholder={t("checkout.identityNumber")} maxLength={11} pattern="[0-9]{11}" className={inputClass} />
-                  <input required name="address" value={form.address} onChange={handleChange} placeholder={t("checkout.address")} className={`sm:col-span-2 ${inputClass}`} />
-                  <input required name="city" value={form.city} onChange={handleChange} placeholder={t("checkout.city")} className={inputClass} />
-                  <input required name="postalCode" value={form.postalCode} onChange={handleChange} placeholder={t("checkout.postalCode")} className={inputClass} />
-                  <input required name="country" value={form.country} onChange={handleChange} placeholder={t("checkout.country")} className={`sm:col-span-2 ${inputClass}`} />
+                  <input required name="firstName" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} placeholder={t("checkout.firstName")} className={inputClass} />
+                  <input required name="lastName" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} placeholder={t("checkout.lastName")} className={inputClass} />
+                  <input required name="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder={t("checkout.email")} type="email" className={`sm:col-span-2 ${inputClass}`} />
+                  
+                  <div className="sm:col-span-2">
+                    <input 
+                      required 
+                      name="phone" 
+                      value={form.phone} 
+                      onChange={(e) => {
+                        let val = e.target.value.replace(/\D/g, "");
+                        if (val.startsWith("90")) val = val.substring(2);
+                        if (val.length > 10) val = val.substring(0, 10);
+                        setForm({ ...form, phone: val });
+                      }} 
+                      placeholder={`${t("checkout.phone")} (örn: 05551234567)`} 
+                      type="tel" 
+                      className={`w-full ${inputClass}`} 
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2 bg-muted/40 p-4 rounded-xl border border-border space-y-3">
+                    <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Fatura Türü</p>
+                    <div className="flex gap-6">
+                      <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer">
+                        <input
+                          type="radio"
+                          name="invoiceType"
+                          checked={form.invoiceType === "individual"}
+                          onChange={() => setForm({ ...form, invoiceType: "individual" })}
+                          className="accent-primary"
+                        />
+                        Bireysel Fatura
+                      </label>
+                      <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer">
+                        <input
+                          type="radio"
+                          name="invoiceType"
+                          checked={form.invoiceType === "corporate"}
+                          onChange={() => setForm({ ...form, invoiceType: "corporate" })}
+                          className="accent-primary"
+                        />
+                        Kurumsal Fatura
+                      </label>
+                    </div>
+
+                    {form.invoiceType === "individual" ? (
+                      <input
+                        required
+                        name="identityNumber"
+                        maxLength={11}
+                        pattern="[0-9]{11}"
+                        value={form.identityNumber}
+                        onChange={(e) => setForm({ ...form, identityNumber: e.target.value.replace(/\D/g, "") })}
+                        placeholder="T.C. Kimlik Numarası"
+                        className={`w-full ${inputClass}`}
+                      />
+                    ) : (
+                      <div className="space-y-3">
+                        <input
+                          required
+                          name="companyName"
+                          value={form.companyName}
+                          onChange={(e) => setForm({ ...form, companyName: e.target.value })}
+                          placeholder="Firma Resmi Ünvanı"
+                          className={`w-full ${inputClass}`}
+                        />
+                        <div className="grid grid-cols-2 gap-3">
+                          <input
+                            required
+                            name="taxOffice"
+                            value={form.taxOffice}
+                            onChange={(e) => setForm({ ...form, taxOffice: e.target.value })}
+                            placeholder="Vergi Dairesi"
+                            className={inputClass}
+                          />
+                          <input
+                            required
+                            name="taxNumber"
+                            maxLength={10}
+                            pattern="[0-9]{10}"
+                            value={form.taxNumber}
+                            onChange={(e) => setForm({ ...form, taxNumber: e.target.value.replace(/\D/g, "") })}
+                            placeholder="Vergi Numarası"
+                            className={inputClass}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <input required name="address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder={t("checkout.address")} className={`sm:col-span-2 ${inputClass}`} />
+                  
+                  <div className="sm:col-span-2 grid grid-cols-2 gap-3">
+                    <select
+                      required
+                      name="city"
+                      value={form.city}
+                      onChange={(e) => setForm({ ...form, city: e.target.value, district: "" })}
+                      className={inputClass}
+                    >
+                      <option value="">İl Seçin</option>
+                      {Object.keys(TR_CITIES).map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+
+                    <select
+                      required
+                      name="district"
+                      value={form.district}
+                      onChange={(e) => setForm({ ...form, district: e.target.value })}
+                      disabled={!form.city}
+                      className={inputClass}
+                    >
+                      <option value="">İlçe Seçin</option>
+                      {form.city && TR_CITIES[form.city]?.map((d) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <input required name="postalCode" value={form.postalCode} onChange={(e) => setForm({ ...form, postalCode: e.target.value })} placeholder={t("checkout.postalCode")} className={inputClass} />
+                  <input required readonly name="country" value="Türkiye" placeholder="Türkiye" className={`${inputClass} opacity-60`} />
+                  
                   <label className="sm:col-span-2 flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
                     <input
                       type="checkbox"
@@ -286,6 +421,37 @@ const Checkout = () => {
                   </label>
                 </div>
               )}
+            </div>
+
+            <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
+              <h2 className="font-bebas text-2xl tracking-wide text-foreground mb-4">Kargo Seçenekleri</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {([
+                  { value: "yurtici", name: "Yurtiçi Kargo" },
+                  { value: "aras", name: "Aras Kargo" },
+                  { value: "mng", name: "MNG Kargo" },
+                ] as const).map((c) => (
+                  <label
+                    key={c.value}
+                    className={`flex flex-col items-center justify-center p-4 border rounded-xl cursor-pointer transition-all ${
+                      carrier === c.value
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-border hover:border-primary/40 text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="carrier"
+                      value={c.value}
+                      checked={carrier === c.value}
+                      onChange={() => setCarrier(c.value)}
+                      className="sr-only"
+                    />
+                    <span className="text-xs uppercase tracking-widest font-semibold">{c.name}</span>
+                    <span className="text-[10px] text-muted-foreground mt-1">Standart Teslimat</span>
+                  </label>
+                ))}
+              </div>
             </div>
 
             <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
@@ -344,9 +510,21 @@ const Checkout = () => {
                   className="accent-primary rounded mt-0.5"
                 />
                 <span>
-                  <Link to="/terms" target="_blank" className="text-primary hover:underline">Mesafeli Satış Sözleşmesi</Link>
+                  <button
+                    type="button"
+                    onClick={() => setShowTermsModal("terms")}
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    Mesafeli Satış Sözleşmesi
+                  </button>
                   {" "}ve{" "}
-                  <Link to="/pre-info" target="_blank" className="text-primary hover:underline">Ön Bilgilendirme Formu</Link>
+                  <button
+                    type="button"
+                    onClick={() => setShowTermsModal("pre-info")}
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    Ön Bilgilendirme Formu
+                  </button>
                   'nu okudum, kabul ediyorum.
                 </span>
               </label>
@@ -366,6 +544,121 @@ const Checkout = () => {
           </div>
         </form>
       </main>
+
+      {/* Dinamik Yasal Sözleşmeler Popup Modalı */}
+      {showTermsModal !== "none" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-card border border-border rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
+            <div className="p-6 border-b border-border flex items-center justify-between">
+              <h2 className="font-bebas text-2xl tracking-wide text-foreground">
+                {showTermsModal === "pre-info" ? "Ön Bilgilendirme Formu" : "Mesafeli Satış Sözleşmesi"}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowTermsModal("none")}
+                className="text-muted-foreground hover:text-foreground p-1 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+                aria-label="Kapat"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto pr-3 space-y-4 text-xs text-muted-foreground leading-relaxed">
+              {showTermsModal === "pre-info" ? (
+                <div className="space-y-4">
+                  <h3 className="font-bold text-sm text-foreground">1. SATICI BİLGİLERİ</h3>
+                  <p>
+                    <strong>Ünvan:</strong> {SITE_CONFIG.legalName}<br />
+                    <strong>Adres:</strong> {SITE_CONFIG.address}<br />
+                    <strong>E-posta:</strong> {SITE_CONFIG.email}<br />
+                    <strong>Telefon:</strong> {SITE_CONFIG.phone}<br />
+                    <strong>MERSİS:</strong> {SITE_CONFIG.mersis}<br />
+                    <strong>Vergi Dairesi / No:</strong> {SITE_CONFIG.taxOffice} / {SITE_CONFIG.taxNumber}
+                  </p>
+
+                  <h3 className="font-bold text-sm text-foreground">2. ALICI BİLGİLERİ</h3>
+                  <p>
+                    <strong>Ad Soyad / Ünvan:</strong> {mode === "saved" && selectedAddress ? `${selectedAddress.first_name} ${selectedAddress.last_name}` : `${form.firstName} ${form.lastName}`}<br />
+                    <strong>Fatura Türü:</strong> {mode === "saved" && selectedAddress ? (selectedAddress.invoice_type === "corporate" ? "Kurumsal" : "Bireysel") : (form.invoiceType === "corporate" ? "Kurumsal" : "Bireysel")}<br />
+                    <strong>Adres:</strong> {mode === "saved" && selectedAddress ? `${selectedAddress.address_line}, ${selectedAddress.district || ""}/${selectedAddress.city}` : `${form.address}, ${form.district || ""}/${form.city}`}<br />
+                    <strong>Telefon:</strong> {mode === "saved" && selectedAddress ? selectedAddress.phone : form.phone}
+                  </p>
+
+                  <h3 className="font-bold text-sm text-foreground">3. SÖZLEŞME KONUSU ÜRÜNLER</h3>
+                  <table className="w-full text-left border-collapse border border-border text-xs">
+                    <thead>
+                      <tr className="bg-muted text-[10px] uppercase font-semibold text-foreground">
+                        <th className="p-2 border border-border">Ürün</th>
+                        <th className="p-2 border border-border">Boyut</th>
+                        <th className="p-2 border border-border">Adet</th>
+                        <th className="p-2 border border-border text-right">Birim Fiyat</th>
+                        <th className="p-2 border border-border text-right">Toplam</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cartProducts.map((cp) => (
+                        <tr key={`${cp.productId}-${cp.size}`}>
+                          <td className="p-2 border border-border">{cp.product.title}</td>
+                          <td className="p-2 border border-border">{cp.size}</td>
+                          <td className="p-2 border border-border">{cp.quantity}</td>
+                          <td className="p-2 border border-border text-right">{formatPrice(cp.product.prices[cp.size])}</td>
+                          <td className="p-2 border border-border text-right">{formatPrice(cp.lineTotal)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  <h3 className="font-bold text-sm text-foreground">4. ÖDEME VE TESLİMAT</h3>
+                  <p>
+                    <strong>Sepet Toplamı:</strong> {formatPrice(totals.subtotal)}<br />
+                    {totals.discount > 0 && <><strong>İndirim:</strong> -{formatPrice(totals.discount)}<br /></>}
+                    <strong>Kargo Ücreti:</strong> {totals.shipping === 0 ? "Ücretsiz" : formatPrice(totals.shipping)}<br />
+                    <strong>Ödenecek Toplam Tutar:</strong> {formatPrice(totals.total)}<br />
+                    <strong>Ödeme Türü:</strong> Kredi Kartı / Banka Kartı (iyzico güvenli ödeme altyapısı)
+                  </p>
+
+                  <h3 className="font-bold text-sm text-foreground">5. CAYMA HAKKI</h3>
+                  <p>
+                    Alıcı, malı teslim aldığı tarihten itibaren 14 (ondört) gün içinde cayma hakkını kullanabilir. Cayma bildirimi satıcı e-posta adresine yapılmalıdır. Ürün bedeli satıcıya ulaştıktan sonra 14 gün içinde ödeme kanalının aynısıyla iade edilir.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4 text-xs">
+                  <h3 className="font-bold text-sm text-foreground">MESAFELİ SATIŞ SÖZLEŞMESİ</h3>
+                  <p>
+                    <strong>1. TARAFLAR:</strong><br />
+                    İşbu Sözleşme, aşağıda belirtilen şartlar dahilinde <strong>SATICI</strong> ({SITE_CONFIG.legalName}) ile <strong>ALICI</strong> ({mode === "saved" && selectedAddress ? `${selectedAddress.first_name} ${selectedAddress.last_name}` : `${form.firstName} ${form.lastName}`}) arasında akdedilmiştir.
+                  </p>
+                  <p>
+                    <strong>2. KONU:</strong><br />
+                    İşbu sözleşmenin konusu, ALICI'nın SATICI'ya ait {SITE_CONFIG.url} internet sitesinden elektronik ortamda siparişini yaptığı aşağıda nitelikleri ve satış ücreti belirtilen ürünün satışı ve teslimi ile ilgili olarak 6502 Sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri gereğince tarafların hak ve yükümlülüklerinin saptanmasıdır.
+                  </p>
+                  <p>
+                    <strong>3. SÖZLEŞME BEDELİ VE ÖDEME:</strong><br />
+                    Toplam sipariş bedeli <strong>{formatPrice(totals.total)}</strong> olup ödeme kart ile tahsil edilecektir. Kargo taşıması {carrier === "yurtici" ? "Yurtiçi Kargo" : carrier === "aras" ? "Aras Kargo" : "MNG Kargo"} tarafından gerçekleştirilecektir.
+                  </p>
+                  <p>
+                    <strong>4. TESLİMAT:</strong><br />
+                    SATICI, ürünü 3-7 iş günü içerisinde teslim etmekle yükümlüdür. Kargo teslimatı sırasında üründe kırık/yırtık gibi hasarlar varsa alıcı kargo görevlisine tutanak tutturmalıdır.
+                  </p>
+                  <p>
+                    <strong>5. YETKİLİ MAHKEME:</strong><br />
+                    İşbu sözleşmeden doğan uyuşmazlıklarda yasal parasal sınırlar dahilinde Tüketici Hakem Heyetleri ve Tüketici Mahkemeleri yetkilidir.
+                  </p>
+                </div>
+              )}
+            </div>
+            <div className="p-6 border-t border-border flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowTermsModal("none")}
+                className="bg-primary text-primary-foreground px-6 py-2.5 text-xs uppercase tracking-widest font-bold rounded-2xl hover:bg-primary/90 transition-colors"
+              >
+                Anladım
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <SiteFooter />
     </>
   );
