@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Package, ShoppingBag, ChevronRight } from "lucide-react";
+import { Package, ShoppingBag, ChevronRight, Truck, ExternalLink, RotateCcw } from "lucide-react";
 import { motion } from "motion/react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -9,6 +9,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/format";
+import { toast } from "@/hooks/use-toast";
 import OrderTimeline from "@/components/OrderTimeline";
 
 interface OrderItem {
@@ -26,6 +27,10 @@ interface Order {
   currency: string;
   created_at: string;
   order_items: OrderItem[];
+  tracking_number: string | null;
+  carrier: string | null;
+  refund_status: string | null;
+  refund_reason: string | null;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -38,12 +43,39 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: "bg-destructive/10 text-destructive",
 };
 
+const CARRIER: Record<string, { label: string; url: (t: string) => string }> = {
+  aras: { label: "Aras Kargo", url: (t) => `https://www.araskargo.com.tr/tr/cargo-tracking?code=${t}` },
+  yurtici: { label: "Yurtiçi Kargo", url: (t) => `https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=${t}` },
+  mng: { label: "MNG Kargo", url: (t) => `https://kargotakip.mngkargo.com.tr/?takipNo=${t}` },
+  ptt: { label: "PTT Kargo", url: (t) => `https://gonderitakip.ptt.gov.tr/Track/Verify?q=${t}` },
+  surat: { label: "Sürat Kargo", url: (t) => `https://www.suratkargo.com.tr/KargoTakip/?kargonu=${t}` },
+};
+
+const REFUND_ELIGIBLE_STATUSES = ["paid", "preparing", "shipped", "delivered"];
+
+const REFUND_BADGES: Record<string, string> = {
+  requested: "İade talebiniz alındı",
+  approved: "İade talebiniz onaylandı",
+  refunded: "İade edildi",
+  rejected: "Talebiniz reddedildi",
+};
+
+const REFUND_BADGE_COLORS: Record<string, string> = {
+  requested: "bg-secondary/15 text-secondary",
+  approved: "bg-accent/15 text-accent",
+  refunded: "bg-accent/20 text-accent",
+  rejected: "bg-destructive/15 text-destructive",
+};
+
 const Orders = () => {
   const { t } = useLanguage();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refundOpenId, setRefundOpenId] = useState<string | null>(null);
+  const [refundReason, setRefundReason] = useState("");
+  const [refundSubmitting, setRefundSubmitting] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -51,18 +83,42 @@ const Orders = () => {
     }
   }, [authLoading, user, navigate]);
 
-  useEffect(() => {
+  const fetchOrders = () => {
     if (!user) return;
     supabase
       .from("orders")
-      .select("*, order_items(*)")
+      .select("*, order_items(*), tracking_number, carrier, refund_status, refund_reason")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => {
         setOrders((data as Order[]) || []);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchOrders();
   }, [user]);
+
+  const handleRefundSubmit = async (orderId: string) => {
+    if (!refundReason.trim()) {
+      toast({ title: "Lütfen bir iade sebebi belirtin.", variant: "destructive" });
+      return;
+    }
+    setRefundSubmitting(true);
+    const { error } = await supabase.functions.invoke("request-refund", {
+      body: { orderId, reason: refundReason.trim() },
+    });
+    setRefundSubmitting(false);
+    if (error) {
+      toast({ title: "İade talebi gönderilemedi", description: "Lütfen daha sonra tekrar deneyin.", variant: "destructive" });
+      return;
+    }
+    toast({ title: "İade talebiniz alındı" });
+    setRefundOpenId(null);
+    setRefundReason("");
+    fetchOrders();
+  };
 
   if (authLoading || !user) return null;
 
@@ -133,6 +189,78 @@ const Orders = () => {
                       </li>
                     ))}
                   </ul>
+                </div>
+
+                {order.tracking_number && (
+                  <div className="border-t border-border pt-3 mt-3">
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1.5">
+                      <Truck className="w-3.5 h-3.5" /> Kargo Takibi
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2 text-sm">
+                      <span className="text-foreground">
+                        {(order.carrier && CARRIER[order.carrier]?.label) || "Kargo Firması"}
+                      </span>
+                      <span className="font-mono text-xs text-muted-foreground">{order.tracking_number}</span>
+                      {order.carrier && CARRIER[order.carrier] ? (
+                        <a
+                          href={CARRIER[order.carrier].url(order.tracking_number)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-primary hover:underline text-xs font-bold uppercase tracking-widest"
+                        >
+                          Kargonu takip et <ExternalLink className="w-3 h-3" />
+                        </a>
+                      ) : null}
+                    </div>
+                  </div>
+                )}
+
+                <div className="border-t border-border pt-3 mt-3">
+                  {order.refund_status && order.refund_status !== "none" ? (
+                    <span className={`inline-block px-3 py-1.5 text-[10px] uppercase tracking-widest font-bold rounded-xl ${REFUND_BADGE_COLORS[order.refund_status] || "bg-muted text-muted-foreground"}`}>
+                      {REFUND_BADGES[order.refund_status] || order.refund_status}
+                    </span>
+                  ) : REFUND_ELIGIBLE_STATUSES.includes(order.status) ? (
+                    refundOpenId === order.id ? (
+                      <div className="space-y-2">
+                        <textarea
+                          value={refundReason}
+                          onChange={(e) => setRefundReason(e.target.value)}
+                          placeholder="İade sebebinizi yazın..."
+                          rows={3}
+                          className="w-full bg-muted border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+                        />
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            disabled={refundSubmitting}
+                            onClick={() => handleRefundSubmit(order.id)}
+                            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 text-xs uppercase tracking-widest font-bold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50"
+                          >
+                            {refundSubmitting ? "Gönderiliyor..." : "Gönder"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setRefundOpenId(null);
+                              setRefundReason("");
+                            }}
+                            className="text-xs uppercase tracking-widest font-bold text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            Vazgeç
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setRefundOpenId(order.id)}
+                        className="inline-flex items-center gap-2 border border-border text-foreground px-4 py-2 text-xs uppercase tracking-widest font-bold rounded-xl hover:border-primary/50 transition-colors"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" /> İade talep et
+                      </button>
+                    )
+                  ) : null}
                 </div>
               </motion.div>
             ))}

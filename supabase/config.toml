@@ -5,3 +5,19 @@ verify_jwt = true
 
 [functions.iyzico-callback]
 verify_jwt = false
+
+# Public: anon ziyaretçi de gönderebilmeli (iletişim formu)
+[functions.send-contact-email]
+verify_jwt = false
+
+# Giriş yapmış kullanıcı iade talebi açar
+[functions.request-refund]
+verify_jwt = true
+
+# Admin: iade onay/red (function içinde has_role kontrolü)
+[functions.process-refund]
+verify_jwt = true
+
+# Admin: kargo bildirimi maili
+[functions.send-shipping-notification]
+verify_jwt = true

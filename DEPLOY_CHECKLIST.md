@@ -11,14 +11,19 @@ supabase/migrations/20260622120000_coupon_free_shipping.sql     # free_shipping 
 supabase/migrations/20260622130000_catalog_and_roles.sql        # products + variants + user_roles + RLS + seed
 supabase/migrations/20260622140000_stock_decrement.sql          # apply_order_stock() RPC
 supabase/migrations/20260622150000_product_images_storage.sql   # product-images storage bucket + RLS
+supabase/migrations/20260622160000_shipping_refund.sql          # orders: kargo + iade kolonları
 ```
 
 ## 2. Edge Function deploy
 ```bash
 supabase functions deploy iyzico-create-payment   # DB fiyat/stok doğrulama + kupon
 supabase functions deploy iyzico-callback         # kupon sayacı + stok düşümü + sipariş maili
-supabase functions deploy send-contact-email      # iletişim formu (yeni)
+supabase functions deploy send-contact-email      # iletişim formu
+supabase functions deploy send-shipping-notification  # kargo bildirimi (admin)
+supabase functions deploy request-refund          # iade talebi (müşteri)
+supabase functions deploy process-refund          # iade onay/red + iyzico cancel (admin)
 ```
+> `config.toml` JWT ayarları hazır: callback/send-contact-email `verify_jwt=false`, diğerleri `true`.
 
 ## 3. Secret'lar (Supabase → Edge Functions → Secrets)
 ```
