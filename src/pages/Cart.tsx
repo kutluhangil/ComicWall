@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, ShieldCheck } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
-import { products, SIZES } from "@/data/products";
+import { SIZES, type PosterSize, type Product } from "@/data/products";
+import { useProducts } from "@/hooks/useCatalog";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
@@ -14,6 +15,7 @@ import { calculateOrderTotals } from "@/lib/pricing";
 const Cart = () => {
   const { items, updateQuantity, removeItem, coupon } = useCart();
   const { t } = useLanguage();
+  const products = useProducts();
 
   const cartProducts = items.map((item) => {
     const product = products.find((p) => p.id === item.productId);
@@ -21,7 +23,7 @@ const Cart = () => {
     const sizeLabel = SIZES.find((s) => s.value === item.size)?.label || item.size;
     return { ...item, product, sizeLabel, lineTotal: product.prices[item.size] * item.quantity };
   }).filter(Boolean) as Array<{
-    productId: string; size: string; quantity: number; product: typeof products[0]; sizeLabel: string; lineTotal: number;
+    productId: string; size: PosterSize; quantity: number; product: Product; sizeLabel: string; lineTotal: number;
   }>;
 
   const subtotal = cartProducts.reduce((sum, cp) => sum + cp.lineTotal, 0);
@@ -61,15 +63,15 @@ const Cart = () => {
                     <p className="text-xs text-muted-foreground mt-0.5">{t("product.size")}: {cp.sizeLabel}</p>
                     <div className="flex items-center gap-3 mt-2 sm:mt-3">
                       <div className="flex items-center border border-border rounded-xl">
-                        <button onClick={() => updateQuantity(cp.productId, cp.size as any, cp.quantity - 1)} className="px-2 py-1 text-foreground hover:bg-muted transition-colors rounded-l-xl">
+                        <button onClick={() => updateQuantity(cp.productId, cp.size, cp.quantity - 1)} className="px-2 py-1 text-foreground hover:bg-muted transition-colors rounded-l-xl">
                           <Minus className="w-3 h-3" />
                         </button>
                         <span className="px-3 text-sm font-semibold text-foreground">{cp.quantity}</span>
-                        <button onClick={() => updateQuantity(cp.productId, cp.size as any, cp.quantity + 1)} className="px-2 py-1 text-foreground hover:bg-muted transition-colors rounded-r-xl">
+                        <button onClick={() => updateQuantity(cp.productId, cp.size, cp.quantity + 1)} className="px-2 py-1 text-foreground hover:bg-muted transition-colors rounded-r-xl">
                           <Plus className="w-3 h-3" />
                         </button>
                       </div>
-                      <button onClick={() => removeItem(cp.productId, cp.size as any)} className="text-muted-foreground hover:text-destructive transition-colors ml-auto" aria-label={t("cart.remove")}>
+                      <button onClick={() => removeItem(cp.productId, cp.size)} className="text-muted-foreground hover:text-destructive transition-colors ml-auto" aria-label={t("cart.remove")}>
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>

@@ -1,7 +1,8 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Minus, Plus, ShoppingCart, Zap, Heart, Share2, Truck, RotateCcw, ShieldCheck, Printer } from "lucide-react";
-import { getProduct, getCollectionProducts, products, SIZES, type PosterSize } from "@/data/products";
+import { SIZES, type PosterSize, type Product } from "@/data/products";
+import { useProduct, useProducts } from "@/hooks/useCatalog";
 import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -19,7 +20,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 const ProductDetail = () => {
   const { slug } = useParams();
-  const product = getProduct(slug || "");
+  const products = useProducts();
+  const product = useProduct(slug);
   const { addItem } = useCart();
   const { t } = useLanguage();
   const { isInWishlist, toggleWishlist } = useWishlist();
@@ -58,7 +60,7 @@ const ProductDetail = () => {
       .eq("product_id", product.id)
       .then(({ data }) => {
         if (!active || !data || data.length === 0) return;
-        const avg = data.reduce((s, r: any) => s + r.rating, 0) / data.length;
+        const avg = data.reduce((s: number, r: { rating: number }) => s + r.rating, 0) / data.length;
         setRating({ avg, count: data.length });
       });
     return () => {
@@ -67,8 +69,8 @@ const ProductDetail = () => {
   }, [product?.id]);
 
   const recentProducts = useMemo(
-    () => recentIds.map((id) => products.find((p) => p.id === id)).filter(Boolean) as typeof products,
-    [recentIds]
+    () => recentIds.map((id) => products.find((p) => p.id === id)).filter(Boolean) as Product[],
+    [recentIds, products]
   );
 
   if (!product) {
@@ -84,7 +86,9 @@ const ProductDetail = () => {
     );
   }
 
-  const collectionProducts = product.collectionId ? getCollectionProducts(product.collectionId) : [];
+  const collectionProducts = product.collectionId
+    ? products.filter((p) => p.collectionId === product.collectionId)
+    : [];
   const relatedProducts = products
     .filter((p) => p.id !== product.id && p.category === product.category)
     .slice(0, 4);
@@ -93,6 +97,7 @@ const ProductDetail = () => {
 
   const price = product.prices[selectedSize];
   const wishlisted = isInWishlist(product.id);
+  const selectedSizeSoldOut = product.variantStock?.[selectedSize] === 0;
 
   const handleShare = async () => {
     const url = typeof window !== "undefined" ? window.location.href : `${SITE_CONFIG.url}/product/${product.slug}`;
@@ -200,19 +205,25 @@ const ProductDetail = () => {
             <div className="mt-6 sm:mt-8">
               <p className="text-xs uppercase tracking-widest font-semibold text-foreground mb-3">{t("product.size")}</p>
               <div className="flex gap-2 sm:gap-3">
-                {SIZES.map((s) => (
-                  <button
-                    key={s.value}
-                    onClick={() => setSelectedSize(s.value)}
-                    className={`px-3 sm:px-4 py-2 text-sm rounded-xl border transition-all duration-200 ${
-                      selectedSize === s.value
-                        ? "border-primary bg-primary/10 text-primary font-semibold"
-                        : "border-border text-muted-foreground hover:border-foreground/30"
-                    }`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
+                {SIZES.map((s) => {
+                  const sizeSoldOut = product.variantStock?.[s.value] === 0;
+                  return (
+                    <button
+                      key={s.value}
+                      onClick={() => setSelectedSize(s.value)}
+                      disabled={sizeSoldOut}
+                      className={`px-3 sm:px-4 py-2 text-sm rounded-xl border transition-all duration-200 ${
+                        sizeSoldOut
+                          ? "border-border text-muted-foreground line-through opacity-50 cursor-not-allowed"
+                          : selectedSize === s.value
+                          ? "border-primary bg-primary/10 text-primary font-semibold"
+                          : "border-border text-muted-foreground hover:border-foreground/30"
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -231,20 +242,35 @@ const ProductDetail = () => {
               </div>
             </div>
 
+            {selectedSizeSoldOut && (
+              <p className="mt-6 text-sm font-semibold text-destructive">{t("product.sizeSoldOut")}</p>
+            )}
+
             <div ref={addBtnRef} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8">
               <button
                 onClick={() => addItem(product.id, selectedSize, quantity)}
-                className="flex-1 bg-foreground text-background px-6 py-3.5 text-sm uppercase tracking-widest font-bold hover:bg-primary hover:text-primary-foreground transition-colors rounded-2xl inline-flex items-center justify-center gap-2"
+                disabled={selectedSizeSoldOut}
+                className="flex-1 bg-foreground text-background px-6 py-3.5 text-sm uppercase tracking-widest font-bold hover:bg-primary hover:text-primary-foreground transition-colors rounded-2xl inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-foreground disabled:hover:text-background"
               >
-                <ShoppingCart className="w-4 h-4" /> {t("product.addToCart")}
+                <ShoppingCart className="w-4 h-4" /> {selectedSizeSoldOut ? t("product.sizeSoldOut") : t("product.addToCart")}
               </button>
-              <Link
-                to="/cart"
-                onClick={() => addItem(product.id, selectedSize, quantity)}
-                className="flex-1 bg-primary text-primary-foreground px-6 py-3.5 text-sm uppercase tracking-widest font-bold hover:bg-primary/90 transition-colors rounded-2xl inline-flex items-center justify-center gap-2"
-              >
-                <Zap className="w-4 h-4" /> {t("product.buyNow")}
-              </Link>
+              {selectedSizeSoldOut ? (
+                <button
+                  type="button"
+                  disabled
+                  className="flex-1 bg-primary text-primary-foreground px-6 py-3.5 text-sm uppercase tracking-widest font-bold rounded-2xl inline-flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
+                >
+                  <Zap className="w-4 h-4" /> {t("product.buyNow")}
+                </button>
+              ) : (
+                <Link
+                  to="/cart"
+                  onClick={() => addItem(product.id, selectedSize, quantity)}
+                  className="flex-1 bg-primary text-primary-foreground px-6 py-3.5 text-sm uppercase tracking-widest font-bold hover:bg-primary/90 transition-colors rounded-2xl inline-flex items-center justify-center gap-2"
+                >
+                  <Zap className="w-4 h-4" /> {t("product.buyNow")}
+                </Link>
+              )}
             </div>
 
             <ul className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-muted-foreground">
@@ -315,20 +341,31 @@ const ProductDetail = () => {
               <div className="flex gap-2">
                 <button
                   onClick={() => addItem(product.id, selectedSize, quantity)}
-                  className="bg-foreground text-background px-4 sm:px-6 py-2.5 text-xs uppercase tracking-widest font-bold hover:bg-primary hover:text-primary-foreground transition-colors rounded-xl inline-flex items-center gap-1.5 whitespace-nowrap"
+                  disabled={selectedSizeSoldOut}
+                  className="bg-foreground text-background px-4 sm:px-6 py-2.5 text-xs uppercase tracking-widest font-bold hover:bg-primary hover:text-primary-foreground transition-colors rounded-xl inline-flex items-center gap-1.5 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-foreground disabled:hover:text-background"
                 >
                   <ShoppingCart className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">{t("product.addToCart")}</span>
-                  <span className="sm:hidden">{t("product.addToCart")}</span>
+                  <span>{selectedSizeSoldOut ? t("product.sizeSoldOut") : t("product.addToCart")}</span>
                 </button>
-                <Link
-                  to="/cart"
-                  onClick={() => addItem(product.id, selectedSize, quantity)}
-                  className="bg-primary text-primary-foreground px-4 sm:px-6 py-2.5 text-xs uppercase tracking-widest font-bold hover:bg-primary/90 transition-colors rounded-xl inline-flex items-center gap-1.5 whitespace-nowrap"
-                >
-                  <Zap className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">{t("product.buyNow")}</span>
-                </Link>
+                {selectedSizeSoldOut ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="bg-primary text-primary-foreground px-4 sm:px-6 py-2.5 text-xs uppercase tracking-widest font-bold rounded-xl inline-flex items-center gap-1.5 whitespace-nowrap opacity-50 cursor-not-allowed"
+                  >
+                    <Zap className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">{t("product.buyNow")}</span>
+                  </button>
+                ) : (
+                  <Link
+                    to="/cart"
+                    onClick={() => addItem(product.id, selectedSize, quantity)}
+                    className="bg-primary text-primary-foreground px-4 sm:px-6 py-2.5 text-xs uppercase tracking-widest font-bold hover:bg-primary/90 transition-colors rounded-xl inline-flex items-center gap-1.5 whitespace-nowrap"
+                  >
+                    <Zap className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">{t("product.buyNow")}</span>
+                  </Link>
+                )}
               </div>
             </div>
           </motion.div>

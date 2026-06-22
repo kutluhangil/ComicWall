@@ -6,6 +6,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
 import { useLanguage } from "@/context/LanguageContext";
 import { SITE_CONFIG } from "@/lib/siteConfig";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 const inputClass =
@@ -23,12 +24,21 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
-    // Gerçek gönderim için bir edge function veya Resend entegrasyonu gerekir;
-    // şimdilik başarılı gönderim simülasyonu yapıyoruz.
-    await new Promise((r) => setTimeout(r, 700));
-    toast({ title: t("contact.success") });
-    setForm({ name: "", email: "", subject: "", message: "" });
-    setSending(false);
+    try {
+      const { error } = await supabase.functions.invoke("send-contact-email", { body: form });
+      if (error) throw error;
+      toast({ title: t("contact.success") });
+      setForm({ name: "", email: "", subject: "", message: "" });
+    } catch (err) {
+      console.error("Contact submit error:", err);
+      toast({
+        title: language === "en" ? "Message could not be sent" : "Mesaj gönderilemedi",
+        description: language === "en" ? "Please try again later." : "Lütfen daha sonra tekrar deneyin.",
+        variant: "destructive",
+      });
+    } finally {
+      setSending(false);
+    }
   };
 
   const isEn = language === "en";

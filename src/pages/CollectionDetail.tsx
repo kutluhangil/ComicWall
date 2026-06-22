@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
-import { getCollection, getCollectionProducts, SIZES, type PosterSize } from "@/data/products";
+import { getCollection, SIZES, type PosterSize } from "@/data/products";
+import { useCollectionProducts } from "@/hooks/useCatalog";
 import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useState } from "react";
@@ -14,6 +15,7 @@ import { formatPrice } from "@/lib/format";
 const CollectionDetail = () => {
   const { slug } = useParams();
   const collection = getCollection(slug || "");
+  const collectionProducts = useCollectionProducts(collection?.id);
   const [selectedSize, setSelectedSize] = useState<PosterSize>("13x18");
   const { addItem } = useCart();
   const { t } = useLanguage();
@@ -30,7 +32,6 @@ const CollectionDetail = () => {
     );
   }
 
-  const collectionProducts = getCollectionProducts(collection.id);
   const bundlePrice = collection.bundlePrice[selectedSize];
 
   const addBundle = () => {

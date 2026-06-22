@@ -15,7 +15,7 @@ const OrderSuccess = () => {
   const [params] = useSearchParams();
   const orderId = params.get("orderId");
   const { clearCart } = useCart();
-  const [order, setOrder] = useState<any>(null);
+  const [order, setOrder] = useState<{ total_amount: number } | null>(null);
 
   useEffect(() => {
     clearCart();

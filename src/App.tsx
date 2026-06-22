@@ -32,6 +32,10 @@ import Terms from "./pages/legal/Terms";
 import PreInfo from "./pages/legal/PreInfo";
 import Cookies from "./pages/legal/Cookies";
 import ShippingReturns from "./pages/legal/ShippingReturns";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminCoupons from "./pages/admin/AdminCoupons";
 import ErrorBoundary from "./components/ErrorBoundary";
 import CookieBanner from "./components/CookieBanner";
 
@@ -73,6 +77,11 @@ const App = () => (
                       <Route path="/pre-info" element={<PreInfo />} />
                       <Route path="/cookies" element={<Cookies />} />
                       <Route path="/shipping-returns" element={<ShippingReturns />} />
+                      <Route path="/admin" element={<AdminLayout />}>
+                        <Route index element={<AdminOrders />} />
+                        <Route path="products" element={<AdminProducts />} />
+                        <Route path="coupons" element={<AdminCoupons />} />
+                      </Route>
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                     <CookieBanner />

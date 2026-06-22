@@ -3,7 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
-import { products } from "@/data/products";
+import { type PosterSize, type Product } from "@/data/products";
+import { useProducts } from "@/hooks/useCatalog";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
@@ -19,14 +20,29 @@ const inputClass =
 
 type Mode = "saved" | "new";
 
+type CheckoutLine = {
+  productId: string;
+  size: PosterSize;
+  quantity: number;
+  product: Product;
+  lineTotal: number;
+};
+
 const Checkout = () => {
   const { items, coupon } = useCart();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const { t } = useLanguage();
   const { user } = useAuth();
+  const products = useProducts();
+  const isGuest = !user || !!user.is_anonymous;
 
   const [mode, setMode] = useState<Mode>("saved");
+
+  // Misafirin kayıtlı adresi olmaz → her zaman "yeni adres" formu
+  useEffect(() => {
+    if (isGuest) setMode("new");
+  }, [isGuest]);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [termsAgreed, setTermsAgreed] = useState(false);
   const [saveToBook, setSaveToBook] = useState(false);
@@ -56,9 +72,9 @@ const Checkout = () => {
       if (!product) return null;
       return { ...item, product, lineTotal: product.prices[item.size] * item.quantity };
     })
-    .filter(Boolean) as any[];
+    .filter(Boolean) as CheckoutLine[];
 
-  const subtotal = cartProducts.reduce((sum: number, cp: any) => sum + cp.lineTotal, 0);
+  const subtotal = cartProducts.reduce((sum: number, cp: CheckoutLine) => sum + cp.lineTotal, 0);
   const totals = calculateOrderTotals(subtotal, coupon);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,14 +83,22 @@ const Checkout = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast({ title: t("checkout.loginRequired"), variant: "destructive" });
-      navigate("/login");
-      return;
-    }
     if (!termsAgreed) {
       toast({ title: t("checkout.termsRequired"), variant: "destructive" });
       return;
+    }
+
+    // Misafir checkout: oturum yoksa anonim oturum aç.
+    // (Supabase → Authentication → Providers → "Anonymous sign-ins" açık olmalı)
+    let activeUser = user;
+    if (!activeUser) {
+      const { data, error } = await supabase.auth.signInAnonymously();
+      if (error || !data.user) {
+        toast({ title: t("checkout.loginRequired"), variant: "destructive" });
+        navigate("/login");
+        return;
+      }
+      activeUser = data.user;
     }
 
     let shipping: typeof form;
@@ -86,7 +110,7 @@ const Checkout = () => {
       shipping = {
         firstName: selectedAddress.first_name,
         lastName: selectedAddress.last_name,
-        email: form.email || user.email || "",
+        email: form.email || activeUser.email || "",
         phone: selectedAddress.phone,
         address: selectedAddress.address_line,
         city: selectedAddress.city,
@@ -103,7 +127,7 @@ const Checkout = () => {
       if (mode === "new" && saveToBook) {
         try {
           await supabase.from("addresses").insert({
-            user_id: user.id,
+            user_id: activeUser.id,
             label: "Teslimat Adresi",
             first_name: shipping.firstName,
             last_name: shipping.lastName,
@@ -120,7 +144,7 @@ const Checkout = () => {
       }
 
       const payload = {
-        items: cartProducts.map((cp: any) => ({
+        items: cartProducts.map((cp: CheckoutLine) => ({
           productId: cp.product.id,
           productTitle: cp.product.title,
           size: cp.size,
@@ -159,7 +183,7 @@ const Checkout = () => {
       }
 
       window.location.href = data.paymentPageUrl;
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
       toast({ title: t("checkout.errorTitle"), description: t("checkout.errorDesc"), variant: "destructive" });
       setLoading(false);
@@ -200,7 +224,7 @@ const Checkout = () => {
             <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-bebas text-2xl tracking-wide text-foreground">{t("checkout.shipping")}</h2>
-                {user && (
+                {user && !user.is_anonymous && (
                   <div className="flex bg-muted rounded-xl p-1 text-[11px] uppercase tracking-widest font-semibold">
                     <button
                       type="button"
@@ -225,6 +249,14 @@ const Checkout = () => {
                   </div>
                 )}
               </div>
+
+              {isGuest && (
+                <p className="text-xs text-muted-foreground mb-4">
+                  Misafir olarak devam edebilirsiniz.{" "}
+                  <Link to="/login" className="text-primary hover:underline">Giriş yaparsanız</Link>{" "}
+                  siparişlerinizi takip edebilir, adreslerinizi kaydedebilirsiniz.
+                </p>
+              )}
 
               {mode === "saved" ? (
                 <AddressBook
@@ -272,7 +304,7 @@ const Checkout = () => {
             <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 sticky top-24 space-y-5">
               <h2 className="font-bebas text-2xl tracking-wide text-foreground">{t("checkout.orderSummary")}</h2>
               <div className="space-y-3 max-h-64 overflow-auto pr-2">
-                {cartProducts.map((cp: any) => (
+                {cartProducts.map((cp: CheckoutLine) => (
                   <div key={`${cp.productId}-${cp.size}`} className="flex justify-between text-sm gap-2">
                     <span className="text-muted-foreground line-clamp-2">
                       {cp.product.title} ({cp.size}) ×{cp.quantity}

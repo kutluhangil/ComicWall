@@ -6,12 +6,14 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
 import AddressBook from "@/components/AddressBook";
-import { User, LogOut, Save, Package, Heart, MapPin } from "lucide-react";
+import { User, LogOut, Save, Package, Heart, MapPin, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import { useIsAdmin } from "@/hooks/useAdmin";
 
 const Profile = () => {
   const { user, profile, loading, signOut, updateProfile } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState("");
@@ -101,6 +103,11 @@ const Profile = () => {
             <Link to="/wishlist" className="bg-muted hover:bg-muted/70 text-foreground px-4 py-3 text-sm uppercase tracking-widest font-semibold rounded-2xl inline-flex items-center justify-center gap-2 transition-colors">
               <Heart className="w-4 h-4" /> {t("nav.wishlist")}
             </Link>
+            {isAdmin && (
+              <Link to="/admin" className="sm:col-span-2 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 px-4 py-3 text-sm uppercase tracking-widest font-semibold rounded-2xl inline-flex items-center justify-center gap-2 transition-colors">
+                <LayoutDashboard className="w-4 h-4" /> Yönetim Paneli
+              </Link>
+            )}
           </div>
 
           <div className="border-t border-border pt-6">

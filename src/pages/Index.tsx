@@ -4,9 +4,10 @@ import { ArrowRight, Zap, Printer, RefreshCw, Truck, ShieldCheck, Sparkles, Awar
 import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import { useEffect } from "react";
-import heroBannerDark from "@/assets/posters/hero-banner.jpg";
-import heroBannerLight from "@/assets/posters/hero-banner-light.jpg";
-import { products, collections, SIZES } from "@/data/products";
+import heroBannerDark from "@/assets/posters/hero-banner.webp";
+import heroBannerLight from "@/assets/posters/hero-banner-light.webp";
+import { collections, SIZES } from "@/data/products";
+import { useProducts } from "@/hooks/useCatalog";
 import ProductCard from "@/components/ProductCard";
 import CollectionCard from "@/components/CollectionCard";
 import SiteHeader from "@/components/SiteHeader";
@@ -57,6 +58,7 @@ const TESTIMONIALS = [
 ];
 
 const Index = () => {
+  const products = useProducts();
   const featuredProducts = products.slice(0, 4);
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);

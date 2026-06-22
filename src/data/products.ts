@@ -1,11 +1,11 @@
-import posterDarkKnight from "@/assets/posters/poster-dark-knight.jpg";
-import posterCosmicHero from "@/assets/posters/poster-cosmic-hero.jpg";
-import posterSpeedster from "@/assets/posters/poster-speedster.jpg";
-import posterWarriorQueen from "@/assets/posters/poster-warrior-queen.jpg";
-import posterIronTitan from "@/assets/posters/poster-iron-titan.jpg";
-import posterEmeraldGuardian from "@/assets/posters/poster-emerald-guardian.jpg";
-import posterThunderGod from "@/assets/posters/poster-thunder-god.jpg";
-import posterWebSlinger from "@/assets/posters/poster-web-slinger.jpg";
+import posterDarkKnight from "@/assets/posters/poster-dark-knight.webp";
+import posterCosmicHero from "@/assets/posters/poster-cosmic-hero.webp";
+import posterSpeedster from "@/assets/posters/poster-speedster.webp";
+import posterWarriorQueen from "@/assets/posters/poster-warrior-queen.webp";
+import posterIronTitan from "@/assets/posters/poster-iron-titan.webp";
+import posterEmeraldGuardian from "@/assets/posters/poster-emerald-guardian.webp";
+import posterThunderGod from "@/assets/posters/poster-thunder-god.webp";
+import posterWebSlinger from "@/assets/posters/poster-web-slinger.webp";
 
 export type PosterSize = "10x15" | "13x18" | "20x30";
 
@@ -19,6 +19,10 @@ export interface Product {
   category: string;
   badge?: string;
   collectionId?: string;
+  /** DB varyantlarından toplam stok. Statik fallback'te undefined (sınırsız varsayılır). */
+  stock?: number;
+  /** Boyut bazında stok. DB'den gelir; statikte yok. */
+  variantStock?: Partial<Record<PosterSize, number>>;
 }
 
 export interface Collection {

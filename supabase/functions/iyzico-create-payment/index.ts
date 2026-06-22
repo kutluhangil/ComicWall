@@ -1,11 +1,16 @@
 // iyzico Checkout Form ödeme başlatma edge function'ı
-// HMAC-SHA256 imzalı v2 auth header kullanır
+// HMAC-SHA256 imzalı v2 auth header kullanır.
+// İndirim ve kargo SUNUCU TARAFINDA hesaplanır; kupon DB'den doğrulanır.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Kargo eşikleri — src/lib/siteConfig.ts ile eşleşmeli
+const FREE_SHIPPING_THRESHOLD = 750;
+const STANDARD_SHIPPING_FEE = 49;
 
 interface CartLine {
   productId: string;
@@ -30,7 +35,14 @@ interface ShippingInfo {
 interface RequestBody {
   items: CartLine[];
   shipping: ShippingInfo;
+  coupon?: { code?: string } | null;
   callbackOrigin: string;
+}
+
+interface ResolvedCoupon {
+  code: string | null;
+  discount: number;
+  freeShipping: boolean;
 }
 
 function hmacSha256Hex(key: string, msg: string): Promise<string> {
@@ -44,8 +56,45 @@ async function generateAuthHeader(apiKey: string, secretKey: string, uri: string
   // iyzico v2 auth: signature = HEX(HMAC-SHA256(secret, randomKey + uri + payload))
   const signature = await hmacSha256Hex(secretKey, randomKey + uri + payload);
   const authString = `apiKey:${apiKey}&randomKey:${randomKey}&signature:${signature}`;
-  const encoded = btoa(authString);
-  return `IYZWSv2 ${encoded}`;
+  return `IYZWSv2 ${btoa(authString)}`;
+}
+
+// Kuponu DB'den doğrula ve indirimi sunucu tarafında hesapla.
+// Client'tan gelen tutarlara asla güvenilmez.
+async function resolveCoupon(
+  adminClient: ReturnType<typeof createClient>,
+  code: string | undefined | null,
+  subtotal: number,
+): Promise<ResolvedCoupon> {
+  const empty: ResolvedCoupon = { code: null, discount: 0, freeShipping: false };
+  if (!code) return empty;
+
+  const normalized = code.trim().toUpperCase();
+  const { data } = await adminClient
+    .from("coupons")
+    .select("*")
+    .eq("code", normalized)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (!data) return empty;
+
+  const now = new Date();
+  if (data.starts_at && new Date(data.starts_at) > now) return empty;
+  if (data.expires_at && new Date(data.expires_at) < now) return empty;
+  if (data.max_uses != null && data.used_count >= data.max_uses) return empty;
+  if (subtotal < Number(data.min_order_amount)) return empty;
+
+  if (data.discount_type === "percent") {
+    return { code: data.code, discount: Math.round((subtotal * Number(data.discount_value)) / 100), freeShipping: false };
+  }
+  if (data.discount_type === "fixed") {
+    return { code: data.code, discount: Math.min(Number(data.discount_value), subtotal), freeShipping: false };
+  }
+  if (data.discount_type === "free_shipping") {
+    return { code: data.code, discount: 0, freeShipping: true };
+  }
+  return empty;
 }
 
 Deno.serve(async (req) => {
@@ -99,16 +148,70 @@ Deno.serve(async (req) => {
       });
     }
 
-    const totalAmount = items.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+
+    // --- Fiyat & stok doğrulaması (client'a güvenme) ---
+    // product_variants tablosu varsa fiyatlar DB'den ZORUNLU alınır.
+    // Tablo henüz yoksa (migration uygulanmadıysa) client fiyatına düşülür.
+    try {
+      const ids = [...new Set(items.map((i) => i.productId))];
+      const { data: variants, error: varErr } = await adminClient
+        .from("product_variants")
+        .select("product_id, size, price, stock")
+        .in("product_id", ids);
+
+      if (!varErr && variants && variants.length > 0) {
+        const variantMap = new Map<string, { price: number; stock: number }>();
+        for (const v of variants) {
+          variantMap.set(`${v.product_id}|${v.size}`, { price: Number(v.price), stock: Number(v.stock) });
+        }
+        for (const item of items) {
+          const v = variantMap.get(`${item.productId}|${item.size}`);
+          if (!v) {
+            return new Response(JSON.stringify({ error: `Ürün bulunamadı: ${item.productTitle}` }), {
+              status: 400,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          if (v.stock < item.quantity) {
+            return new Response(JSON.stringify({ error: `Stok yetersiz: ${item.productTitle}` }), {
+              status: 400,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          item.unitPrice = v.price; // DB fiyatını zorla
+        }
+      }
+    } catch (e) {
+      console.warn("Variant fiyat doğrulaması atlandı (tablo yok olabilir):", e);
+    }
+
+    // --- Tutarları sunucu tarafında hesapla ---
+    const subtotal = items.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
+    const resolved = await resolveCoupon(adminClient, body.coupon?.code, subtotal);
+    const subtotalAfterDiscount = Math.max(0, subtotal - resolved.discount);
+    const baseShipping = subtotalAfterDiscount >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_FEE;
+    const shippingAmount = resolved.freeShipping ? 0 : baseShipping;
+    const totalAmount = subtotalAfterDiscount + shippingAmount;
+
+    if (totalAmount <= 0) {
+      return new Response(JSON.stringify({ error: "Geçersiz sipariş tutarı" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // 1) Sipariş kaydı oluştur (pending)
-    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
     const { data: orderData, error: orderErr } = await adminClient
       .from("orders")
       .insert({
         user_id: user.id,
         status: "pending",
+        subtotal_amount: subtotal,
+        discount_amount: resolved.discount,
+        shipping_amount: shippingAmount,
         total_amount: totalAmount,
+        coupon_code: resolved.code,
         currency: "TRY",
         shipping_info: shipping,
       })
@@ -123,7 +226,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const orderId = orderData.id;
+    const orderId = orderData.id as string;
 
     // 2) Sipariş kalemlerini ekle
     const orderItems = items.map((i) => ({
@@ -138,13 +241,32 @@ Deno.serve(async (req) => {
     await adminClient.from("order_items").insert(orderItems);
 
     // 3) iyzico Checkout Form initialize isteği hazırla
+    //    price = ürünler + kargo (basketItems toplamı buna eşit olmalı)
+    //    paidPrice = tahsil edilecek tutar (indirim price'tan düşülür)
     const conversationId = orderId;
     const callbackUrl = `${supabaseUrl}/functions/v1/iyzico-callback?orderId=${orderId}&origin=${encodeURIComponent(callbackOrigin)}`;
+
+    const basketItems = items.map((i) => ({
+      id: `${i.productId}-${i.size}`,
+      name: `${i.productTitle} (${i.size})`,
+      category1: "Poster",
+      itemType: "PHYSICAL",
+      price: (i.unitPrice * i.quantity).toFixed(2),
+    }));
+    if (shippingAmount > 0) {
+      basketItems.push({
+        id: "shipping",
+        name: "Kargo",
+        category1: "Shipping",
+        itemType: "VIRTUAL",
+        price: shippingAmount.toFixed(2),
+      });
+    }
 
     const iyzicoPayload = {
       locale: "tr",
       conversationId,
-      price: totalAmount.toFixed(2),
+      price: (subtotal + shippingAmount).toFixed(2),
       paidPrice: totalAmount.toFixed(2),
       currency: "TRY",
       basketId: orderId,
@@ -178,13 +300,7 @@ Deno.serve(async (req) => {
         address: shipping.address,
         zipCode: shipping.postalCode,
       },
-      basketItems: items.map((i) => ({
-        id: `${i.productId}-${i.size}`,
-        name: `${i.productTitle} (${i.size})`,
-        category1: "Poster",
-        itemType: "PHYSICAL",
-        price: (i.unitPrice * i.quantity).toFixed(2),
-      })),
+      basketItems,
     };
 
     const uri = "/payment/iyzipos/checkoutform/initialize/auth/ecom";

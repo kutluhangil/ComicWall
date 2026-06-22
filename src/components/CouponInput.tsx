@@ -36,12 +36,17 @@ const CouponInput = ({ subtotal }: CouponInputProps) => {
         return;
       }
 
-      if (data.valid_until && new Date(data.valid_until) < new Date()) {
+      if (data.starts_at && new Date(data.starts_at) > new Date()) {
         toast({ title: t("cart.couponInvalid"), variant: "destructive" });
         return;
       }
 
-      if (data.usage_limit && data.times_used >= data.usage_limit) {
+      if (data.expires_at && new Date(data.expires_at) < new Date()) {
+        toast({ title: t("cart.couponInvalid"), variant: "destructive" });
+        return;
+      }
+
+      if (data.max_uses != null && data.used_count >= data.max_uses) {
         toast({ title: t("cart.couponInvalid"), variant: "destructive" });
         return;
       }

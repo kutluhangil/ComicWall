@@ -1,7 +1,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useLanguage } from "@/context/LanguageContext";
-import { products } from "@/data/products";
+import { useProducts } from "@/hooks/useCatalog";
 import ProductCard from "@/components/ProductCard";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -15,6 +15,7 @@ const Wishlist = () => {
   const { wishlist } = useWishlist();
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const products = useProducts();
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/login");

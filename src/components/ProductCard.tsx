@@ -22,6 +22,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   const liked = user ? isInWishlist(product.id) : false;
 
+  const soldOut = product.stock === 0;
+  const lowStock =
+    product.stock !== undefined && product.stock > 0 && product.stock <= 5;
+
   const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -45,10 +49,20 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <img
           src={product.image}
           alt={product.title}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${soldOut ? "opacity-40 grayscale" : ""}`}
           loading="lazy"
         />
-        {product.badge && (
+        {soldOut && (
+          <span className="absolute top-3 left-3 bg-destructive text-destructive-foreground text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-xl">
+            {t("product.soldOut")}
+          </span>
+        )}
+        {!soldOut && lowStock && (
+          <span className="absolute top-3 left-3 bg-muted text-muted-foreground text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-xl">
+            {t("product.lastFew").replace("{count}", String(product.stock))}
+          </span>
+        )}
+        {product.badge && !soldOut && !lowStock && (
           <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-xl">
             {product.badge}
           </span>

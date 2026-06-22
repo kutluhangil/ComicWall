@@ -56,6 +56,9 @@ const tr: Record<string, string> = {
   "product.from": "Başlangıç",
   "product.quickView": "Hızlı Bakış",
   "product.set": "Set",
+  "product.soldOut": "Tükendi",
+  "product.lastFew": "Son {count} adet",
+  "product.sizeSoldOut": "Bu boyut tükendi",
 
   // Product Detail
   "product.notFound": "Poster Bulunamadı",
@@ -443,6 +446,9 @@ const en: Record<string, string> = {
   "product.from": "From",
   "product.quickView": "Quick View",
   "product.set": "Set",
+  "product.soldOut": "Sold Out",
+  "product.lastFew": "Only {count} left",
+  "product.sizeSoldOut": "This size is sold out",
 
   // Product Detail
   "product.notFound": "Poster Not Found",

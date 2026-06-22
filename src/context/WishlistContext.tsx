@@ -27,7 +27,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       .select("product_id")
       .eq("user_id", user.id)
       .then(({ data }) => {
-        setWishlist((data || []).map((d: any) => d.product_id));
+        setWishlist((data || []).map((d: { product_id: string }) => d.product_id));
         setLoading(false);
       });
   }, [user]);

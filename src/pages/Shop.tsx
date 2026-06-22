@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { products, SIZES, type PosterSize } from "@/data/products";
+import { SIZES, type PosterSize } from "@/data/products";
+import { useProducts } from "@/hooks/useCatalog";
 import ProductCard from "@/components/ProductCard";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -10,12 +11,12 @@ import { Shuffle, SlidersHorizontal, X, Search } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { formatPrice } from "@/lib/format";
 
-const CATEGORIES = [...new Set(products.map((p) => p.category))];
-
 type SortKey = "featured" | "priceAsc" | "priceDesc" | "newest";
 
 const Shop = () => {
   const { t } = useLanguage();
+  const products = useProducts();
+  const CATEGORIES = useMemo(() => [...new Set(products.map((p) => p.category))], [products]);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -71,7 +72,7 @@ const Shop = () => {
         break;
     }
     return sorted;
-  }, [selectedCategory, selectedSize, bundlesOnly, maxPrice, search, sortBy]);
+  }, [products, selectedCategory, selectedSize, bundlesOnly, maxPrice, search, sortBy]);
 
   const handleSurpriseMe = () => {
     const randomProduct = products[Math.floor(Math.random() * products.length)];

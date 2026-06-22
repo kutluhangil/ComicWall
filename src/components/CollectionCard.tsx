@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { products } from "@/data/products";
+import { useProducts } from "@/hooks/useCatalog";
 import { useLanguage } from "@/context/LanguageContext";
 import type { Collection } from "@/data/products";
 import { motion } from "motion/react";
@@ -11,6 +11,7 @@ interface CollectionCardProps {
 }
 
 const CollectionCard = ({ collection }: CollectionCardProps) => {
+  const products = useProducts();
   const collectionProducts = collection.products
     .map((id) => products.find((p) => p.id === id))
     .filter(Boolean);

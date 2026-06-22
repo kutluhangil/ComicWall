@@ -1,4 +1,5 @@
 // iyzico'dan dönen callback. Token ile ödeme detaylarını sorgular ve sipariş durumunu günceller.
+// Başarılıysa kupon kullanım sayacını artırır ve (RESEND_API_KEY varsa) onay e-postası gönderir.
 // Kullanıcıyı /order-success veya /order-failed sayfasına yönlendirir.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -18,6 +19,59 @@ async function generateAuthHeader(apiKey: string, secretKey: string, uri: string
   const signature = await hmacSha256Hex(secretKey, randomKey + uri + payload);
   const authString = `apiKey:${apiKey}&randomKey:${randomKey}&signature:${signature}`;
   return `IYZWSv2 ${btoa(authString)}`;
+}
+
+// Kupon kullanıldıysa used_count'u artır (best-effort, düşük hacim için yeterli).
+async function incrementCouponUsage(adminClient: ReturnType<typeof createClient>, code: string | null) {
+  if (!code) return;
+  try {
+    const { data } = await adminClient.from("coupons").select("used_count").eq("code", code).maybeSingle();
+    if (data) {
+      await adminClient
+        .from("coupons")
+        .update({ used_count: Number(data.used_count) + 1 })
+        .eq("code", code);
+    }
+  } catch (e) {
+    console.error("Coupon usage increment failed:", e);
+  }
+}
+
+// Onay e-postası (best-effort). RESEND_API_KEY yoksa sessizce atlanır.
+async function sendOrderEmail(order: Record<string, unknown>) {
+  const resendKey = Deno.env.get("RESEND_API_KEY");
+  if (!resendKey) return;
+  const from = Deno.env.get("ORDER_EMAIL_FROM") || "ComicWall <siparis@comicwall.com.tr>";
+  const adminEmail = Deno.env.get("ORDER_EMAIL_ADMIN");
+
+  const shipping = (order.shipping_info || {}) as Record<string, string>;
+  const to = shipping.email;
+  const orderId = order.id as string;
+  const total = Number(order.total_amount).toFixed(2);
+
+  const html = `
+    <h2>Siparişiniz alındı 🎉</h2>
+    <p>Merhaba ${shipping.firstName || ""},</p>
+    <p>Sipariş numaranız: <strong>${orderId}</strong></p>
+    <p>Toplam tutar: <strong>${total} TL</strong></p>
+    <p>Siparişiniz hazırlanmaya başlandığında tekrar bilgilendirileceksiniz.</p>
+    <p>— ComicWall</p>`;
+
+  const recipients: { to: string; subject: string }[] = [];
+  if (to) recipients.push({ to, subject: "ComicWall — Siparişiniz Alındı" });
+  if (adminEmail) recipients.push({ to: adminEmail, subject: `Yeni sipariş: ${orderId} (${total} TL)` });
+
+  for (const r of recipients) {
+    try {
+      await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ from, to: r.to, subject: r.subject, html }),
+      });
+    } catch (e) {
+      console.error("Order email failed:", e);
+    }
+  }
 }
 
 Deno.serve(async (req) => {
@@ -78,13 +132,20 @@ Deno.serve(async (req) => {
     console.log("iyzico verify:", verifyJson);
 
     if (verifyJson.status === "success" && verifyJson.paymentStatus === "SUCCESS") {
-      await adminClient
+      const { data: order } = await adminClient
         .from("orders")
         .update({
           status: "paid",
           iyzico_payment_id: verifyJson.paymentId?.toString() || null,
         })
-        .eq("id", orderId);
+        .eq("id", orderId)
+        .select()
+        .single();
+
+      if (order) {
+        await incrementCouponUsage(adminClient, (order.coupon_code as string | null) ?? null);
+        await sendOrderEmail(order as Record<string, unknown>);
+      }
 
       return Response.redirect(`${origin}/order-success?orderId=${orderId}`, 303);
     } else {

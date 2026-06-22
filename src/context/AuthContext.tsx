@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import type { User, Session } from "@supabase/supabase-js";
+import type { User, Session, AuthError } from "@supabase/supabase-js";
 
 interface Profile {
   id: string;
@@ -14,8 +14,8 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string, displayName?: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, displayName?: string) => Promise<{ error: AuthError | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
   updateProfile: (data: Partial<Pick<Profile, "display_name" | "avatar_url">>) => Promise<void>;
 }

@@ -44,14 +44,14 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
     if (!error && data) {
       setReviews(data as ReviewRow[]);
 
-      const ids = Array.from(new Set(data.map((r: any) => r.user_id)));
+      const ids = Array.from(new Set(data.map((r: { user_id: string }) => r.user_id)));
       if (ids.length) {
         const { data: profiles } = await supabase
           .from("profiles")
           .select("user_id, display_name")
           .in("user_id", ids);
         const map: Record<string, string> = {};
-        (profiles || []).forEach((p: any) => {
+        (profiles || []).forEach((p: { user_id: string; display_name: string | null }) => {
           map[p.user_id] = p.display_name || "Anonim";
         });
         setDisplayNames(map);
@@ -110,8 +110,9 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
       }
       toast({ title: t("product.reviewSaved") });
       await load();
-    } catch (err: any) {
-      toast({ title: err?.message || "Yorum kaydedilemedi", variant: "destructive" });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Yorum kaydedilemedi";
+      toast({ title: message, variant: "destructive" });
     } finally {
       setSaving(false);
     }
