@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import Fuse from "fuse.js";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { SIZES, type PosterSize } from "@/data/products";
 import { useProducts } from "@/hooks/useCatalog";
@@ -42,17 +43,21 @@ const Shop = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
+  // Yazım toleranslı (fuzzy) arama indeksi
+  const fuse = useMemo(
+    () => new Fuse(products, { keys: ["title", "category", "description"], threshold: 0.4, ignoreLocation: true }),
+    [products]
+  );
+
   const filteredProducts = useMemo(() => {
-    const normalized = search.trim().toLocaleLowerCase("tr-TR");
-    const list = products.filter((p) => {
+    const q = search.trim();
+    // Arama varsa fuse sonuçları (alaka sırasına göre), yoksa tüm ürünler
+    const base = q ? fuse.search(q).map((r) => r.item) : products;
+    const list = base.filter((p) => {
       if (selectedCategory && p.category !== selectedCategory) return false;
       if (bundlesOnly && !p.collectionId) return false;
       const priceKey = selectedSize || "10x15";
       if (p.prices[priceKey] > maxPrice) return false;
-      if (normalized) {
-        const haystack = `${p.title} ${p.category} ${p.description}`.toLocaleLowerCase("tr-TR");
-        if (!haystack.includes(normalized)) return false;
-      }
       return true;
     });
 
@@ -72,7 +77,7 @@ const Shop = () => {
         break;
     }
     return sorted;
-  }, [products, selectedCategory, selectedSize, bundlesOnly, maxPrice, search, sortBy]);
+  }, [products, fuse, selectedCategory, selectedSize, bundlesOnly, maxPrice, search, sortBy]);
 
   const handleSurpriseMe = () => {
     const randomProduct = products[Math.floor(Math.random() * products.length)];

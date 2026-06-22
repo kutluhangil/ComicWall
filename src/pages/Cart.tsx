@@ -8,6 +8,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
 import FreeShippingProgress from "@/components/FreeShippingProgress";
+import ProductCard from "@/components/ProductCard";
 import CouponInput from "@/components/CouponInput";
 import { formatPrice } from "@/lib/format";
 import { calculateOrderTotals } from "@/lib/pricing";
@@ -28,6 +29,14 @@ const Cart = () => {
 
   const subtotal = cartProducts.reduce((sum, cp) => sum + cp.lineTotal, 0);
   const totals = calculateOrderTotals(subtotal, coupon);
+
+  // Upsell: sepetteki ürünlerle aynı koleksiyondan, sepette olmayan öneriler
+  const cartIds = new Set(items.map((i) => i.productId));
+  const cartCollections = new Set(cartProducts.map((cp) => cp.product.collectionId).filter(Boolean));
+  const suggestions = products
+    .filter((p) => !cartIds.has(p.id))
+    .sort((a, b) => (cartCollections.has(b.collectionId) ? 1 : 0) - (cartCollections.has(a.collectionId) ? 1 : 0))
+    .slice(0, 4);
 
   return (
     <>
@@ -50,6 +59,7 @@ const Cart = () => {
             </Link>
           </div>
         ) : (
+          <>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             <div className="lg:col-span-2 space-y-3 sm:space-y-4">
               <FreeShippingProgress subtotal={subtotal} />
@@ -125,6 +135,17 @@ const Cart = () => {
               </div>
             </div>
           </div>
+          {suggestions.length > 0 && (
+            <section className="mt-14">
+              <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-foreground mb-5">Sık birlikte alınanlar</h2>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                {suggestions.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+            </section>
+          )}
+          </>
         )}
       </main>
       <SiteFooter />
