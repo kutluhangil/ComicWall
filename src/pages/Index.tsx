@@ -130,7 +130,7 @@ const Index = () => {
         <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 overflow-hidden">
             <div className="animate-hero-zoom w-full h-full">
-              <img src={heroBanner} alt="Hero poster banner" className="w-full h-full object-cover" />
+              <img src={heroBanner} alt="Hero poster banner" className="w-full h-full object-cover" fetchPriority="high" decoding="async" />
             </div>
             <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />

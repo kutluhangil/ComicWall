@@ -8,39 +8,44 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { ThemeProvider } from "next-themes";
-import Index from "./pages/Index";
-import Shop from "./pages/Shop";
-import Collections from "./pages/Collections";
-import CollectionDetail from "./pages/CollectionDetail";
-import ProductDetail from "./pages/ProductDetail";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Profile from "./pages/Profile";
-import Wishlist from "./pages/Wishlist";
-import Orders from "./pages/Orders";
-import OrderSuccess from "./pages/OrderSuccess";
-import OrderFailed from "./pages/OrderFailed";
-import NotFound from "./pages/NotFound";
-import Contact from "./pages/Contact";
-import FAQ from "./pages/FAQ";
-import About from "./pages/About";
-import Privacy from "./pages/legal/Privacy";
-import Kvkk from "./pages/legal/Kvkk";
-import Terms from "./pages/legal/Terms";
-import PreInfo from "./pages/legal/PreInfo";
-import Cookies from "./pages/legal/Cookies";
-import ShippingReturns from "./pages/legal/ShippingReturns";
-import AdminLayout from "./pages/admin/AdminLayout";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminOrders from "./pages/admin/AdminOrders";
-import AdminProducts from "./pages/admin/AdminProducts";
-import AdminCoupons from "./pages/admin/AdminCoupons";
+import { lazy, Suspense } from "react";
+import Index from "./pages/Index"; // anasayfa eager — LCP
+const Shop = lazy(() => import("./pages/Shop"));
+const Collections = lazy(() => import("./pages/Collections"));
+const CollectionDetail = lazy(() => import("./pages/CollectionDetail"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
+const Orders = lazy(() => import("./pages/Orders"));
+const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
+const OrderFailed = lazy(() => import("./pages/OrderFailed"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Contact = lazy(() => import("./pages/Contact"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const About = lazy(() => import("./pages/About"));
+const Privacy = lazy(() => import("./pages/legal/Privacy"));
+const Kvkk = lazy(() => import("./pages/legal/Kvkk"));
+const Terms = lazy(() => import("./pages/legal/Terms"));
+const PreInfo = lazy(() => import("./pages/legal/PreInfo"));
+const Cookies = lazy(() => import("./pages/legal/Cookies"));
+const ShippingReturns = lazy(() => import("./pages/legal/ShippingReturns"));
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
+const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
+const AdminCoupons = lazy(() => import("./pages/admin/AdminCoupons"));
 import ErrorBoundary from "./components/ErrorBoundary";
 import CookieBanner from "./components/CookieBanner";
 
 const queryClient = new QueryClient();
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center text-muted-foreground text-sm">Yükleniyor…</div>
+);
 
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
@@ -54,6 +59,7 @@ const App = () => (
                   <Toaster />
                   <Sonner />
                   <BrowserRouter>
+                    <Suspense fallback={<PageLoader />}>
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/shop" element={<Shop />} />
@@ -86,6 +92,7 @@ const App = () => (
                       </Route>
                       <Route path="*" element={<NotFound />} />
                     </Routes>
+                    </Suspense>
                     <CookieBanner />
                   </BrowserRouter>
                 </ErrorBoundary>

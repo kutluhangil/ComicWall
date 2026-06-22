@@ -51,6 +51,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           alt={product.title}
           className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${soldOut ? "opacity-40 grayscale" : ""}`}
           loading="lazy"
+          decoding="async"
         />
         {soldOut && (
           <span className="absolute top-3 left-3 bg-destructive text-destructive-foreground text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-xl">
