@@ -48,7 +48,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <Link to={`/product/${product.slug}`} className="block relative aspect-[3/4] overflow-hidden rounded-t-2xl">
         <img
           src={product.image}
-          alt={product.title}
+          alt={t("product." + product.id + ".title") || product.title}
           className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${soldOut ? "opacity-40 grayscale" : ""}`}
           loading="lazy"
           decoding="async"
@@ -65,7 +65,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
         )}
         {product.badge && !soldOut && !lowStock && (
           <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-xl">
-            {product.badge}
+            {product.badge === "Yeni"
+              ? t("badge.new")
+              : product.badge === "Çok Satan"
+              ? t("badge.bestseller")
+              : product.badge === "Popüler"
+              ? t("badge.popular")
+              : product.badge}
           </span>
         )}
         {product.collectionId && (
@@ -91,8 +97,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
       </Link>
 
       <div className="p-3 sm:p-4">
-        <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">{product.category}</p>
-        <h3 className="font-bebas text-lg sm:text-xl tracking-wide text-foreground">{product.title}</h3>
+        <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">{t("category." + product.category) || product.category}</p>
+        <h3 className="font-bebas text-lg sm:text-xl tracking-wide text-foreground">{t("product." + product.id + ".title") || product.title}</h3>
         <div className="flex items-center justify-between mt-2 sm:mt-3">
           <p className="text-sm text-foreground">
             {t("product.from")} <span className="font-semibold text-primary">{formatPrice(product.prices["10x15"])}</span>

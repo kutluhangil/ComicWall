@@ -104,7 +104,11 @@ const ProductDetail = () => {
     const url = typeof window !== "undefined" ? window.location.href : `${SITE_CONFIG.url}/product/${product.slug}`;
     try {
       if (typeof navigator !== "undefined" && "share" in navigator) {
-        await navigator.share({ title: product.title, text: product.description, url });
+        await navigator.share({
+          title: t("product." + product.id + ".title") || product.title,
+          text: t("product." + product.id + ".description") || product.description,
+          url
+        });
       } else {
         await navigator.clipboard.writeText(url);
         toast({ title: t("product.linkCopied") });
@@ -117,10 +121,10 @@ const ProductDetail = () => {
   const productJsonLd = {
     "@context": "https://schema.org/",
     "@type": "Product",
-    name: product.title,
-    description: product.description,
+    name: t("product." + product.id + ".title") || product.title,
+    description: t("product." + product.id + ".description") || product.description,
     image: `${SITE_CONFIG.url}${product.image}`,
-    category: product.category,
+    category: t("category." + product.category) || product.category,
     brand: { "@type": "Brand", name: "ComicWall" },
     offers: {
       "@type": "AggregateOffer",
@@ -145,8 +149,8 @@ const ProductDetail = () => {
   return (
     <>
       <SEO
-        title={`${product.title} — ComicWall`}
-        description={product.description}
+        title={`${t("product." + product.id + ".title") || product.title} — ComicWall`}
+        description={t("product." + product.id + ".description") || product.description}
         canonicalUrl={`/product/${product.slug}`}
         ogType="product"
         ogImage={product.image}
@@ -161,7 +165,7 @@ const ProductDetail = () => {
             transition={{ duration: 0.6 }}
             className="aspect-[3/4] bg-card rounded-2xl overflow-hidden border border-border"
           >
-            <img src={product.image} alt={product.title} className="w-full h-full object-cover" fetchPriority="high" />
+            <img src={product.image} alt={t("product." + product.id + ".title") || product.title} className="w-full h-full object-cover" fetchPriority="high" />
           </motion.div>
 
           <motion.div
@@ -171,7 +175,7 @@ const ProductDetail = () => {
             className="flex flex-col justify-center"
           >
             <div className="flex items-center justify-between gap-3 mb-2">
-              <p className="text-xs uppercase tracking-[0.3em] text-primary font-semibold">{product.category}</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-primary font-semibold">{t("category." + product.category) || product.category}</p>
               <div className="flex gap-1">
                 <button
                   type="button"
@@ -195,13 +199,13 @@ const ProductDetail = () => {
                 </button>
               </div>
             </div>
-            <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl tracking-wide text-foreground">{product.title}</h1>
+            <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl tracking-wide text-foreground">{t("product." + product.id + ".title") || product.title}</h1>
             {rating.count > 0 && (
               <a href="#reviews" className="text-xs text-muted-foreground mt-2 hover:text-primary transition-colors">
-                ★ {rating.avg.toFixed(1)} — {rating.count} değerlendirme
+                ★ {rating.avg.toFixed(1)} — {rating.count} {t("product.basedOn")}
               </a>
             )}
-            <p className="text-muted-foreground mt-4 leading-relaxed text-sm sm:text-base">{product.description}</p>
+            <p className="text-muted-foreground mt-4 leading-relaxed text-sm sm:text-base">{t("product." + product.id + ".description") || product.description}</p>
 
             <div className="mt-6 sm:mt-8">
               <div className="flex items-center justify-between mb-3">
@@ -211,7 +215,7 @@ const ProductDetail = () => {
                   onClick={() => setShowSizeGuide(true)}
                   className="text-xs text-primary hover:underline font-semibold"
                 >
-                  Ebat Rehberi
+                  {t("product.sizeGuide.title")}
                 </button>
               </div>
               <div className="flex gap-2 sm:gap-3">
@@ -242,13 +246,16 @@ const ProductDetail = () => {
               {product.variantStock?.[selectedSize] !== undefined && 
                product.variantStock[selectedSize]! > 0 && 
                product.variantStock[selectedSize]! <= 5 && (
-                <p className="text-xs font-semibold text-accent mt-2 animate-pulse">
-                  ⚠️ Acele edin! Seçilen boyutta son {product.variantStock[selectedSize]} ürün kaldı.
-                </p>
+                 <p className="text-xs font-semibold text-accent mt-2 animate-pulse">
+                   {t("product.lastFewUrgent").replace("{count}", String(product.variantStock[selectedSize]))}
+                 </p>
               )}
             </div>
 
-            <p className="font-bebas text-3xl sm:text-4xl text-foreground mt-6">{formatPrice(price)}</p>
+            <div className="mt-6 flex items-baseline gap-2">
+              <span className="font-bebas text-3xl sm:text-4xl text-foreground">{formatPrice(price)}</span>
+              <span className="text-[11px] text-muted-foreground">({t("common.vatIncluded")})</span>
+            </div>
 
             <div className="flex items-center gap-4 mt-6">
               <p className="text-xs uppercase tracking-widest font-semibold text-foreground">{t("product.qty")}</p>
@@ -261,7 +268,7 @@ const ProductDetail = () => {
                   onClick={() => {
                     const maxStock = product.variantStock?.[selectedSize] ?? 999;
                     if (quantity >= maxStock) {
-                      toast({ title: `Stok limiti: Seçilen boyutta maksimum ${maxStock} adet alabilirsiniz.`, variant: "destructive" });
+                      toast({ title: t("product.stockLimit").replace("{count}", maxStock.toString()), variant: "destructive" });
                       return;
                     }
                     setQuantity(quantity + 1);
@@ -363,10 +370,10 @@ const ProductDetail = () => {
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-4">
               <div className="w-10 h-14 rounded-xl overflow-hidden border border-border flex-shrink-0">
-                <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
+                <img src={product.image} alt={t("product." + product.id + ".title") || product.title} className="w-full h-full object-cover" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-bebas text-lg tracking-wide text-foreground truncate">{product.title}</p>
+                <p className="font-bebas text-lg tracking-wide text-foreground truncate">{t("product." + product.id + ".title") || product.title}</p>
                 <p className="text-sm text-primary font-semibold">{formatPrice(product.prices[selectedSize])}</p>
               </div>
               <div className="flex gap-2">
@@ -408,7 +415,7 @@ const ProductDetail = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-fade-in">
           <div className="bg-card border border-border rounded-3xl w-full max-w-md overflow-hidden flex flex-col shadow-2xl">
             <div className="p-6 border-b border-border flex items-center justify-between">
-              <h2 className="font-bebas text-2xl tracking-wide text-foreground">Boyut & Ebat Rehberi</h2>
+              <h2 className="font-bebas text-2xl tracking-wide text-foreground">{t("product.sizeGuide.title")}</h2>
               <button
                 type="button"
                 onClick={() => setShowSizeGuide(false)}
@@ -420,14 +427,14 @@ const ProductDetail = () => {
             </div>
             <div className="p-6 space-y-4">
               <p className="text-sm text-muted-foreground">
-                ComicWall posterleri üç farklı standart ebatta üretilmektedir. Odanız için en uygun ebadı seçebilirsiniz:
+                {t("product.sizeGuide.desc")}
               </p>
               
               <div className="space-y-3">
                 {([
-                  { size: "10x15 cm", desc: "Fotoğraf boyutu. Çalışma masaları, raflar ve komodinler için idealdir (A6 yakın)." },
-                  { size: "13x18 cm", desc: "Küçük duvar posteri. Kitaplık üstleri veya çoklu galeri duvarları için idealdir (A5 yakın)." },
-                  { size: "20x30 cm", desc: "Orta boy poster. Tekli asımlar veya minimalist oda dekorları için mükemmeldir (A4 yakın)." },
+                  { size: "10x15 cm", desc: t("product.sizeGuide.size1.desc") },
+                  { size: "13x18 cm", desc: t("product.sizeGuide.size2.desc") },
+                  { size: "20x30 cm", desc: t("product.sizeGuide.size3.desc") },
                 ] as const).map((item, i) => (
                   <div key={item.size} className="flex gap-4 p-3 bg-muted/30 border border-border rounded-2xl items-center">
                     <div
@@ -453,7 +460,7 @@ const ProductDetail = () => {
                 onClick={() => setShowSizeGuide(false)}
                 className="bg-primary text-primary-foreground px-6 py-2.5 text-xs uppercase tracking-widest font-bold rounded-2xl hover:bg-primary/90 transition-colors"
               >
-                Kapat
+                {t("common.close")}
               </button>
             </div>
           </div>

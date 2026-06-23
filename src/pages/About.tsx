@@ -52,13 +52,13 @@ const About = () => {
               </p>
               <div className="flex flex-wrap gap-3 justify-center mt-8">
                 <span className="inline-flex items-center gap-1.5 border border-border rounded-xl px-4 py-2 text-xs text-muted-foreground">
-                  <Sparkles className="w-3.5 h-3.5 text-primary" /> AI-Generated Art
+                  <Sparkles className="w-3.5 h-3.5 text-primary" /> {t("about.tag.ai")}
                 </span>
                 <span className="inline-flex items-center gap-1.5 border border-border rounded-xl px-4 py-2 text-xs text-muted-foreground">
-                  <Award className="w-3.5 h-3.5 text-secondary" /> Museum-Quality Print
+                  <Award className="w-3.5 h-3.5 text-secondary" /> {t("about.tag.quality")}
                 </span>
                 <span className="inline-flex items-center gap-1.5 border border-border rounded-xl px-4 py-2 text-xs text-muted-foreground">
-                  <ShieldCheck className="w-3.5 h-3.5 text-accent" /> 100% Copyright-Free
+                  <ShieldCheck className="w-3.5 h-3.5 text-accent" /> {t("about.tag.copyright")}
                 </span>
               </div>
             </motion.div>

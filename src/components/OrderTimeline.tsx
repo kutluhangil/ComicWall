@@ -1,14 +1,15 @@
 import { Check, X } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface OrderTimelineProps {
   status: string;
 }
 
 const STEPS = [
-  { key: "paid", label: "Ödendi" },
-  { key: "preparing", label: "Hazırlanıyor" },
-  { key: "shipped", label: "Kargoda" },
-  { key: "delivered", label: "Teslim edildi" },
+  { key: "paid" },
+  { key: "preparing" },
+  { key: "shipped" },
+  { key: "delivered" },
 ];
 
 const STEP_ORDER: Record<string, number> = {
@@ -20,6 +21,8 @@ const STEP_ORDER: Record<string, number> = {
 };
 
 const OrderTimeline = ({ status }: OrderTimelineProps) => {
+  const { t } = useLanguage();
+
   if (status === "failed" || status === "cancelled") {
     return (
       <div className="flex items-center gap-2 py-2">
@@ -27,7 +30,7 @@ const OrderTimeline = ({ status }: OrderTimelineProps) => {
           <X className="w-3.5 h-3.5" />
         </span>
         <span className="text-xs uppercase tracking-widest font-bold text-destructive">
-          {status === "failed" ? "Ödeme başarısız" : "Sipariş iptal edildi"}
+          {status === "failed" ? t("orderFailed.title") : t("orders.status.cancelled")}
         </span>
       </div>
     );
@@ -59,7 +62,7 @@ const OrderTimeline = ({ status }: OrderTimelineProps) => {
                   isActive ? "text-primary" : "text-muted-foreground"
                 }`}
               >
-                {step.label}
+                {t("orders.status." + step.key)}
               </span>
             </div>
             {i < STEPS.length - 1 && (

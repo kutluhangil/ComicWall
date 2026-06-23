@@ -15,7 +15,7 @@ import { formatPrice } from "@/lib/format";
 type SortKey = "featured" | "priceAsc" | "priceDesc" | "newest";
 
 const Shop = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const products = useProducts();
   const CATEGORIES = useMemo(() => [...new Set(products.map((p) => p.category))], [products]);
   const navigate = useNavigate();
@@ -99,8 +99,8 @@ const Shop = () => {
   return (
     <>
       <SEO
-        title="Mağaza — Tüm Posterler | ComicWall"
-        description="ComicWall'un tüm premium çizgi roman tarzı posterlerini keşfedin. Kategori, boyut ve fiyat aralığına göre filtreleyin."
+        title={`${t("shop.seo.title")}`}
+        description={t("shop.seo.description")}
         canonicalUrl="/shop"
       />
       <SiteHeader />
@@ -143,7 +143,7 @@ const Shop = () => {
               <button
                 type="button"
                 onClick={() => setSearch("")}
-                aria-label="Aramayı temizle"
+                aria-label={t("shop.clearSearch")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 <X className="w-4 h-4" />
@@ -264,8 +264,17 @@ const Shop = () => {
 
           <div className="flex-1">
             <p className="text-xs text-muted-foreground mb-4">
-              {filteredProducts.length} ürün
-              {search ? ` — "${search}" için sonuçlar` : ""}
+              {language === "en" ? (
+                <>
+                  {filteredProducts.length} {t("shop.resultsCount")}
+                  {search ? ` — ${t("shop.resultsFor")} "${search}"` : ""}
+                </>
+              ) : (
+                <>
+                  {filteredProducts.length} {t("shop.resultsCount")}
+                  {search ? ` — "${search}" ${t("shop.resultsFor")}` : ""}
+                </>
+              )}
             </p>
             {filteredProducts.length === 0 ? (
               <div className="text-center py-20">

@@ -30,7 +30,7 @@ const CollectionCard = ({ collection }: CollectionCardProps) => {
           <div key={p!.id} className="flex-1 overflow-hidden">
             <img
               src={p!.image}
-              alt={p!.title}
+              alt={t("product." + p!.id + ".title") || p!.title}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               loading="lazy"
             />
@@ -39,8 +39,8 @@ const CollectionCard = ({ collection }: CollectionCardProps) => {
       </div>
 
       <div className="p-4 sm:p-5">
-        <h3 className="font-bebas text-xl sm:text-2xl tracking-wide text-foreground">{collection.title}</h3>
-        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{collection.description}</p>
+        <h3 className="font-bebas text-xl sm:text-2xl tracking-wide text-foreground">{t("collection." + collection.id + ".title") || collection.title}</h3>
+        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{t("collection." + collection.id + ".desc") || collection.description}</p>
         <div className="flex items-center justify-between mt-4">
           <p className="text-sm text-foreground">
             {t("collections.bundleFrom")} <span className="font-semibold text-secondary">{formatPrice(collection.bundlePrice["10x15"])}</span>

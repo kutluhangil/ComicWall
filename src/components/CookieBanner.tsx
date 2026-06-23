@@ -47,7 +47,7 @@ const CookieBanner = () => {
             <button
               type="button"
               onClick={() => persist("essential")}
-              aria-label="Kapat"
+              aria-label={t("common.close")}
               className="absolute top-3 right-3 text-muted-foreground hover:text-foreground transition-colors"
             >
               <X className="w-4 h-4" />

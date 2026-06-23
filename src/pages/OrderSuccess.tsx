@@ -33,7 +33,7 @@ const OrderSuccess = () => {
 
   return (
     <>
-      <SEO title="Sipariş Onayı — ComicWall" description="Siparişiniz başarıyla alındı." canonicalUrl="/order-success" />
+      <SEO title={`${t("orderSuccess.seo.title")} — ComicWall`} description={t("orderSuccess.seo.description")} canonicalUrl="/order-success" />
       <SiteHeader />
       <main className="pt-32 pb-20 max-w-2xl mx-auto px-5 sm:px-6 lg:px-8 min-h-screen">
         <motion.div

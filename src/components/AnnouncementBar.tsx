@@ -37,17 +37,19 @@ const AnnouncementBar = ({ onDismiss }: AnnouncementBarProps) => {
         </>
       ) : earned ? (
         <span className="flex items-center gap-1.5 font-bold">
-          <PartyPopper className="w-4 h-4" /> Kargo ücretiniz bizden! Siparişinizi hemen tamamlayın.
+          <PartyPopper className="w-4 h-4" /> {t("announcement.freeEarned")}
         </span>
       ) : (
         <span className="flex items-center gap-1.5">
-          <Truck className="w-4 h-4" /> Kargo bedava için sepetinize son <span className="font-bold underline">{formatPrice(remaining)}</span> değerinde ürün ekleyin!
+          <Truck className="w-4 h-4" /> {t("announcement.freeLeft")}{" "}
+          <span className="font-bold underline">{formatPrice(remaining)}</span>{" "}
+          {t("announcement.freeLeft2")}
         </span>
       )}
       <button
         onClick={onDismiss}
         className="absolute right-3 top-1/2 -translate-y-1/2 opacity-70 hover:opacity-100 transition-opacity p-1 rounded"
-        aria-label="Kapat"
+        aria-label={t("common.close")}
       >
         <X className="w-3.5 h-3.5" />
       </button>

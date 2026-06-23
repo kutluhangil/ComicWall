@@ -23,7 +23,7 @@ const SiteHeader = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const { theme, setTheme } = useTheme();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -143,7 +143,7 @@ const SiteHeader = () => {
               </Link>
             )}
 
-            <button className="md:hidden text-foreground p-1.5" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menü">
+            <button className="md:hidden text-foreground p-1.5" onClick={() => setMenuOpen(!menuOpen)} aria-label={language === "en" ? "Menu" : "Menü"}>
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
@@ -168,7 +168,7 @@ const SiteHeader = () => {
                 type="button"
                 onClick={() => { setSearchOpen(false); setQuery(""); }}
                 className="text-muted-foreground hover:text-foreground p-1"
-                aria-label="Kapat"
+                aria-label={t("common.close")}
               >
                 <X className="w-4 h-4" />
               </button>

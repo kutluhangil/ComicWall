@@ -11,7 +11,7 @@ const OrderFailed = () => {
 
   return (
     <>
-      <SEO title="Ödeme Başarısız — ComicWall" description="Ödemeniz tamamlanamadı." canonicalUrl="/order-failed" />
+      <SEO title={`${t("orderFailed.seo.title")} — ComicWall`} description={t("orderFailed.seo.description")} canonicalUrl="/order-failed" />
       <SiteHeader />
       <main className="pt-32 pb-20 max-w-2xl mx-auto px-5 sm:px-6 lg:px-8 min-h-screen">
         <motion.div

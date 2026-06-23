@@ -41,8 +41,8 @@ const Cart = () => {
   return (
     <>
       <SEO
-        title="Alışveriş Sepeti — ComicWall"
-        description="Alışveriş sepetinizdeki posterleri gözden geçirin ve ödemeye geçin."
+        title={t("cart.seo.title")}
+        description={t("cart.seo.description")}
         canonicalUrl="/cart"
         noindex
       />
@@ -55,7 +55,7 @@ const Cart = () => {
             <ShoppingBag className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground mb-4">{t("cart.empty")}</p>
             <Link to="/shop" className="bg-primary text-primary-foreground px-6 py-3 text-sm uppercase tracking-widest font-bold rounded-2xl inline-block">
-              {t("cart.startShopping")}
+               {t("cart.startShopping")}
             </Link>
           </div>
         ) : (
@@ -66,10 +66,10 @@ const Cart = () => {
               {cartProducts.map((cp) => (
                 <div key={`${cp.productId}-${cp.size}`} className="flex gap-3 sm:gap-4 bg-card border border-border rounded-2xl p-3 sm:p-4 items-center">
                   <Link to={`/product/${cp.product.slug}`} className="w-16 h-22 sm:w-20 sm:h-28 rounded-xl overflow-hidden flex-shrink-0">
-                    <img src={cp.product.image} alt={cp.product.title} className="w-full h-full object-cover" />
+                    <img src={cp.product.image} alt={t("product." + cp.productId + ".title") || cp.product.title} className="w-full h-full object-cover" />
                   </Link>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bebas text-lg sm:text-xl tracking-wide text-foreground">{cp.product.title}</h3>
+                    <h3 className="font-bebas text-lg sm:text-xl tracking-wide text-foreground">{t("product." + cp.productId + ".title") || cp.product.title}</h3>
                     <p className="text-xs text-muted-foreground mt-0.5">{t("product.size")}: {cp.sizeLabel}</p>
                     <div className="flex items-center gap-3 mt-2 sm:mt-3">
                       <div className="flex items-center border border-border rounded-xl">
@@ -116,9 +116,12 @@ const Cart = () => {
                       {totals.shipping === 0 ? t("cart.free") : formatPrice(totals.shipping)}
                     </span>
                   </div>
-                  <div className="border-t border-border pt-3 mt-3 flex justify-between items-center">
-                    <span className="text-foreground font-semibold">{t("cart.total")}</span>
-                    <span className="font-bebas text-3xl text-primary">{formatPrice(totals.total)}</span>
+                  <div className="border-t border-border pt-3 mt-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-foreground font-semibold">{t("cart.total")}</span>
+                      <span className="font-bebas text-3xl text-primary">{formatPrice(totals.total)}</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground text-right mt-1">({t("common.vatIncluded")})</p>
                   </div>
                 </div>
 
@@ -137,7 +140,7 @@ const Cart = () => {
           </div>
           {suggestions.length > 0 && (
             <section className="mt-14">
-              <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-foreground mb-5">Sık birlikte alınanlar</h2>
+              <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-foreground mb-5">{t("cart.frequentlyBoughtTogether")}</h2>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {suggestions.map((p) => (
                   <ProductCard key={p.id} product={p} />

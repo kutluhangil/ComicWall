@@ -90,8 +90,8 @@ const Index = () => {
   return (
     <>
       <SEO
-        title="ComicWall — Premium Çizgi Roman Tarzı Posterler"
-        description="Yapay zeka ile üretilmiş, orijinal çizgi roman tarzı posterler. Süper kahraman temalı duvar sanatı. Türkiye'nin her yerine hızlı teslimat."
+        title={t("home.seo.title")}
+        description={t("home.seo.description")}
         canonicalUrl="/"
         jsonLd={[
           {
@@ -406,7 +406,7 @@ const Index = () => {
                   ))}
                 </div>
                 <p className="text-sm text-foreground leading-relaxed flex-1">
-                  "{item.text}"
+                  "{t(`testimonials.${i}.text`)}"
                 </p>
                 <div className="flex items-center gap-3 mt-6 pt-4 border-t border-border">
                   <div className={`w-9 h-9 rounded-full ${item.colorClass} flex items-center justify-center font-bold text-xs flex-shrink-0`}>
@@ -414,7 +414,7 @@ const Index = () => {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-foreground">{item.name}</p>
-                    <p className="text-xs text-muted-foreground">{item.location} · {item.date}</p>
+                    <p className="text-xs text-muted-foreground">{t(`testimonials.${i}.location`)} · {t(`testimonials.${i}.date`)}</p>
                   </div>
                   <span className="ml-auto text-[10px] text-primary border border-primary/30 rounded-lg px-2 py-1 flex-shrink-0">
                     ✓

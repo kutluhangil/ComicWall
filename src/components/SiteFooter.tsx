@@ -130,13 +130,29 @@ const SiteFooter = () => {
               </button>
             </form>
             <div className="flex gap-4 mt-5">
-              <a href="#" aria-label="Instagram" className="text-muted-foreground hover:text-primary transition-colors">
+              <a
+                href={SITE_CONFIG.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" aria-label="Twitter" className="text-muted-foreground hover:text-secondary transition-colors">
+              <a
+                href={SITE_CONFIG.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Twitter"
+                className="text-muted-foreground hover:text-secondary transition-colors"
+              >
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href={`mailto:${SITE_CONFIG.email}`} aria-label="E-posta" className="text-muted-foreground hover:text-accent transition-colors">
+              <a
+                href={`mailto:${SITE_CONFIG.email}`}
+                aria-label="E-posta"
+                className="text-muted-foreground hover:text-accent transition-colors"
+              >
                 <Mail className="w-5 h-5" />
               </a>
             </div>
@@ -148,8 +164,24 @@ const SiteFooter = () => {
               {SITE_CONFIG.legalName}<br />
               MERSİS: {SITE_CONFIG.mersis}<br />
               {SITE_CONFIG.taxOffice} V.D. / {SITE_CONFIG.taxNumber}<br />
-              {SITE_CONFIG.etbis ? <>ETBİS: {SITE_CONFIG.etbis}<br /></> : null}
+              {SITE_CONFIG.etbis ? <>{SITE_CONFIG.etbis}<br /></> : null}
             </p>
+            <div className="mt-3 flex md:justify-end">
+              <a
+                href="https://etbis.gtb.gov.tr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 border border-border bg-muted/10 hover:bg-muted/30 rounded-xl px-2.5 py-1.5 transition-all group"
+              >
+                <div className="w-7 h-5 rounded bg-primary flex items-center justify-center text-primary-foreground font-bebas text-[9px] font-bold tracking-tight">
+                  ETBİS
+                </div>
+                <div className="text-left">
+                  <p className="text-[7px] font-semibold text-muted-foreground leading-none">T.C. TİCARET BAKANLIĞI</p>
+                  <p className="text-[9px] font-bold text-foreground leading-none mt-0.5 group-hover:text-primary transition-colors">ETBİS'E KAYITLIDIR</p>
+                </div>
+              </a>
+            </div>
             <div className="flex gap-3 mt-4 md:justify-end opacity-70">
               <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest text-muted-foreground border border-border rounded-md px-2 py-1">
                 iyzico

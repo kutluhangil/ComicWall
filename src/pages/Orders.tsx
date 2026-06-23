@@ -53,13 +53,6 @@ const CARRIER: Record<string, { label: string; url: (t: string) => string }> = {
 
 const REFUND_ELIGIBLE_STATUSES = ["paid", "preparing", "shipped", "delivered"];
 
-const REFUND_BADGES: Record<string, string> = {
-  requested: "İade talebiniz alındı",
-  approved: "İade talebiniz onaylandı",
-  refunded: "İade edildi",
-  rejected: "Talebiniz reddedildi",
-};
-
 const REFUND_BADGE_COLORS: Record<string, string> = {
   requested: "bg-secondary/15 text-secondary",
   approved: "bg-accent/15 text-accent",
@@ -68,7 +61,7 @@ const REFUND_BADGE_COLORS: Record<string, string> = {
 };
 
 const Orders = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -102,7 +95,7 @@ const Orders = () => {
 
   const handleRefundSubmit = async (orderId: string) => {
     if (!refundReason.trim()) {
-      toast({ title: "Lütfen bir iade sebebi belirtin.", variant: "destructive" });
+      toast({ title: t("orders.refund.reasonRequired"), variant: "destructive" });
       return;
     }
     setRefundSubmitting(true);
@@ -111,10 +104,10 @@ const Orders = () => {
     });
     setRefundSubmitting(false);
     if (error) {
-      toast({ title: "İade talebi gönderilemedi", description: "Lütfen daha sonra tekrar deneyin.", variant: "destructive" });
+      toast({ title: t("orders.refund.submitError"), description: t("orders.refund.tryLater"), variant: "destructive" });
       return;
     }
-    toast({ title: "İade talebiniz alındı" });
+    toast({ title: t("orders.refund.success") });
     setRefundOpenId(null);
     setRefundReason("");
     fetchOrders();
@@ -124,11 +117,11 @@ const Orders = () => {
 
   return (
     <>
-      <SEO title="Siparişlerim — ComicWall" description="Sipariş geçmişiniz ve durum takibi." canonicalUrl="/orders" />
+      <SEO title={`${t("orders.title")} — ComicWall`} description={t("orders.seo.description")} canonicalUrl="/orders" />
       <SiteHeader />
       <main className="pt-[var(--header-h)] max-w-5xl mx-auto px-5 sm:px-6 lg:px-8 pb-20 min-h-screen">
         <h1 className="font-bebas text-4xl sm:text-5xl tracking-wide text-foreground mb-2">{t("orders.title")}</h1>
-        <p className="text-sm text-muted-foreground mb-8">Tüm siparişlerinizi ve teslimat durumlarınızı buradan takip edebilirsiniz.</p>
+        <p className="text-sm text-muted-foreground mb-8">{t("orders.subtitle")}</p>
 
         {loading ? (
           <div className="space-y-3">
@@ -162,7 +155,7 @@ const Orders = () => {
                     <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("orders.orderNo")}</p>
                     <p className="font-mono text-xs sm:text-sm text-foreground">{order.id.slice(0, 8).toUpperCase()}</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(order.created_at).toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" })}
+                      {new Date(order.created_at).toLocaleDateString(language === "en" ? "en-US" : "tr-TR", { day: "2-digit", month: "long", year: "numeric" })}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
@@ -194,11 +187,11 @@ const Orders = () => {
                 {order.tracking_number && (
                   <div className="border-t border-border pt-3 mt-3">
                     <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1.5">
-                      <Truck className="w-3.5 h-3.5" /> Kargo Takibi
+                      <Truck className="w-3.5 h-3.5" /> {t("orders.tracking")}
                     </p>
                     <div className="flex flex-wrap items-center gap-2 text-sm">
                       <span className="text-foreground">
-                        {(order.carrier && CARRIER[order.carrier]?.label) || "Kargo Firması"}
+                        {(order.carrier && CARRIER[order.carrier]?.label) || t("orders.carrierPlaceholder")}
                       </span>
                       <span className="font-mono text-xs text-muted-foreground">{order.tracking_number}</span>
                       {order.carrier && CARRIER[order.carrier] ? (
@@ -208,7 +201,7 @@ const Orders = () => {
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-primary hover:underline text-xs font-bold uppercase tracking-widest"
                         >
-                          Kargonu takip et <ExternalLink className="w-3 h-3" />
+                          {t("orders.trackButton")} <ExternalLink className="w-3 h-3" />
                         </a>
                       ) : null}
                     </div>
@@ -219,8 +212,8 @@ const Orders = () => {
                   {order.refund_status && order.refund_status !== "none" ? (
                     <span className={`inline-block px-3 py-1.5 text-[10px] uppercase tracking-widest font-bold rounded-xl ${REFUND_BADGE_COLORS[order.refund_status] || "bg-muted text-muted-foreground"}`}>
                       {order.refund_status === "requested" && ["paid", "preparing"].includes(order.status)
-                        ? "İptal talebiniz alındı"
-                        : REFUND_BADGES[order.refund_status] || order.refund_status}
+                        ? t("orders.refund.cancelRequested")
+                        : t("orders.refund." + order.refund_status)}
                     </span>
                   ) : REFUND_ELIGIBLE_STATUSES.includes(order.status) ? (
                     refundOpenId === order.id ? (
@@ -228,7 +221,7 @@ const Orders = () => {
                         <textarea
                           value={refundReason}
                           onChange={(e) => setRefundReason(e.target.value)}
-                          placeholder={["paid", "preparing"].includes(order.status) ? "Lütfen iptal etme sebebinizi yazın..." : "Lütfen iade sebebinizi yazın..."}
+                          placeholder={["paid", "preparing"].includes(order.status) ? t("orders.refund.cancelPlaceholder") : t("orders.refund.refundPlaceholder")}
                           rows={3}
                           className="w-full bg-muted border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
                         />
@@ -239,7 +232,7 @@ const Orders = () => {
                             onClick={() => handleRefundSubmit(order.id)}
                             className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 text-xs uppercase tracking-widest font-bold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50"
                           >
-                            {refundSubmitting ? "Gönderiliyor..." : ["paid", "preparing"].includes(order.status) ? "Siparişi İptal Et" : "İade Talebi Gönder"}
+                            {refundSubmitting ? t("orders.refund.submitting") : ["paid", "preparing"].includes(order.status) ? t("orders.refund.cancelOrder") : t("orders.refund.requestRefund")}
                           </button>
                           <button
                             type="button"
@@ -249,7 +242,7 @@ const Orders = () => {
                             }}
                             className="text-xs uppercase tracking-widest font-bold text-muted-foreground hover:text-foreground transition-colors"
                           >
-                            Vazgeç
+                            {t("orders.refund.discard")}
                           </button>
                         </div>
                       </div>
@@ -259,7 +252,7 @@ const Orders = () => {
                         onClick={() => setRefundOpenId(order.id)}
                         className="inline-flex items-center gap-2 border border-border text-foreground px-4 py-2 text-xs uppercase tracking-widest font-bold rounded-xl hover:border-primary/50 transition-colors"
                       >
-                        <RotateCcw className="w-3.5 h-3.5" /> {["paid", "preparing"].includes(order.status) ? "Siparişi İptal Et" : "Kolay İade Talebi"}
+                        <RotateCcw className="w-3.5 h-3.5" /> {["paid", "preparing"].includes(order.status) ? t("orders.refund.cancelOrder") : t("orders.refund.easyRefund")}
                       </button>
                     )
                   ) : null}

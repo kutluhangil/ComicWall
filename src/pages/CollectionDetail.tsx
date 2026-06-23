@@ -40,13 +40,13 @@ const CollectionDetail = () => {
 
   return (
     <>
-      <SEO title={`${collection.title} — ComicWall`} description={collection.description} canonicalUrl={`/collection/${collection.slug}`} />
+      <SEO title={`${t("collection." + collection.id + ".title") || collection.title} — ComicWall`} description={t("collection." + collection.id + ".desc") || collection.description} canonicalUrl={`/collection/${collection.slug}`} />
       <SiteHeader />
       <main className="pt-[var(--header-h)] max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-20">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <p className="text-xs uppercase tracking-[0.3em] text-secondary font-semibold mb-2">{t("collectionDetail.badge")}</p>
-          <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl tracking-wide text-foreground">{collection.title}</h1>
-          <p className="text-muted-foreground mt-3 max-w-xl text-sm sm:text-base">{collection.description}</p>
+          <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl tracking-wide text-foreground">{t("collection." + collection.id + ".title") || collection.title}</h1>
+          <p className="text-muted-foreground mt-3 max-w-xl text-sm sm:text-base">{t("collection." + collection.id + ".desc") || collection.description}</p>
 
           <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 mt-8 inline-block">
             <p className="text-xs uppercase tracking-widest font-semibold text-foreground mb-3">{t("collectionDetail.buySet")}</p>

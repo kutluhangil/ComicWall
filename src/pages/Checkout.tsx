@@ -34,7 +34,7 @@ const Checkout = () => {
   const { items, coupon } = useCart();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
   const products = useProducts();
   const isGuest = !user || !!user.is_anonymous;
@@ -212,7 +212,7 @@ const Checkout = () => {
   if (items.length === 0) {
     return (
       <>
-        <SEO title="Ödeme — ComicWall" description="Siparişinizi tamamlayın." canonicalUrl="/checkout" noindex />
+        <SEO title={`${t("checkout.title")} — ComicWall`} description={t("checkout.seo.description")} canonicalUrl="/checkout" noindex />
         <SiteHeader />
         <main className="pt-32 text-center min-h-screen px-5">
           <p className="text-muted-foreground mb-4">{t("checkout.emptyCart")}</p>
@@ -226,8 +226,8 @@ const Checkout = () => {
   return (
     <>
       <SEO
-        title="Ödeme — ComicWall"
-        description="Siparişinizi güvenle tamamlayın. iyzico ile 256-bit SSL korumalı ödeme."
+        title={`${t("checkout.title")} — ComicWall`}
+        description={t("checkout.seo.description")}
         canonicalUrl="/checkout"
         noindex
       />
@@ -235,7 +235,7 @@ const Checkout = () => {
       <main className="pt-[var(--header-h)] max-w-5xl mx-auto px-5 sm:px-6 lg:px-8 pb-20 min-h-screen">
         <h1 className="font-bebas text-4xl sm:text-5xl tracking-wide text-foreground mb-2">{t("checkout.title")}</h1>
         <p className="text-sm text-muted-foreground mb-8 flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-accent" /> 256-bit SSL ile güvenli ödeme — iyzico
+          <ShieldCheck className="w-4 h-4 text-accent" /> {t("cart.secureCheckout")} — iyzico
         </p>
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-5 gap-8 sm:gap-10">
@@ -271,9 +271,9 @@ const Checkout = () => {
 
               {isGuest && (
                 <p className="text-xs text-muted-foreground mb-4">
-                  Misafir olarak devam edebilirsiniz.{" "}
-                  <Link to="/login" className="text-primary hover:underline">Giriş yaparsanız</Link>{" "}
-                  siparişlerinizi takip edebilir, adreslerinizi kaydedebilirsiniz.
+                  {t("checkout.guestNotice")}{" "}
+                  <Link to="/login" className="text-primary hover:underline">{t("auth.login")}</Link>{" "}
+                  {t("checkout.guestDesc")}
                 </p>
               )}
 
@@ -307,7 +307,7 @@ const Checkout = () => {
                   </div>
 
                   <div className="sm:col-span-2 bg-muted/40 p-4 rounded-xl border border-border space-y-3">
-                    <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Fatura Türü</p>
+                    <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">{t("checkout.invoiceType")}</p>
                     <div className="flex gap-6">
                       <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer">
                         <input
@@ -317,7 +317,7 @@ const Checkout = () => {
                           onChange={() => setForm({ ...form, invoiceType: "individual" })}
                           className="accent-primary"
                         />
-                        Bireysel Fatura
+                        {t("checkout.invoiceIndividual")}
                       </label>
                       <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer">
                         <input
@@ -327,7 +327,7 @@ const Checkout = () => {
                           onChange={() => setForm({ ...form, invoiceType: "corporate" })}
                           className="accent-primary"
                         />
-                        Kurumsal Fatura
+                        {t("checkout.invoiceCorporate")}
                       </label>
                     </div>
 
@@ -339,7 +339,7 @@ const Checkout = () => {
                         pattern="[0-9]{11}"
                         value={form.identityNumber}
                         onChange={(e) => setForm({ ...form, identityNumber: e.target.value.replace(/\D/g, "") })}
-                        placeholder="T.C. Kimlik Numarası"
+                        placeholder={t("checkout.idNumberPlaceholder")}
                         className={`w-full ${inputClass}`}
                       />
                     ) : (
@@ -349,7 +349,7 @@ const Checkout = () => {
                           name="companyName"
                           value={form.companyName}
                           onChange={(e) => setForm({ ...form, companyName: e.target.value })}
-                          placeholder="Firma Resmi Ünvanı"
+                          placeholder={t("checkout.companyNamePlaceholder")}
                           className={`w-full ${inputClass}`}
                         />
                         <div className="grid grid-cols-2 gap-3">
@@ -358,7 +358,7 @@ const Checkout = () => {
                             name="taxOffice"
                             value={form.taxOffice}
                             onChange={(e) => setForm({ ...form, taxOffice: e.target.value })}
-                            placeholder="Vergi Dairesi"
+                            placeholder={t("checkout.taxOfficePlaceholder")}
                             className={inputClass}
                           />
                           <input
@@ -368,7 +368,7 @@ const Checkout = () => {
                             pattern="[0-9]{10}"
                             value={form.taxNumber}
                             onChange={(e) => setForm({ ...form, taxNumber: e.target.value.replace(/\D/g, "") })}
-                            placeholder="Vergi Numarası"
+                            placeholder={t("checkout.taxNumberPlaceholder")}
                             className={inputClass}
                           />
                         </div>
@@ -386,7 +386,7 @@ const Checkout = () => {
                       onChange={(e) => setForm({ ...form, city: e.target.value, district: "" })}
                       className={inputClass}
                     >
-                      <option value="">İl Seçin</option>
+                      <option value="">{t("checkout.selectCity")}</option>
                       {Object.keys(TR_CITIES).map((c) => (
                         <option key={c} value={c}>{c}</option>
                       ))}
@@ -400,7 +400,7 @@ const Checkout = () => {
                       disabled={!form.city}
                       className={inputClass}
                     >
-                      <option value="">İlçe Seçin</option>
+                      <option value="">{t("checkout.selectDistrict")}</option>
                       {form.city && TR_CITIES[form.city]?.map((d) => (
                         <option key={d} value={d}>{d}</option>
                       ))}
@@ -408,7 +408,7 @@ const Checkout = () => {
                   </div>
 
                   <input required name="postalCode" value={form.postalCode} onChange={(e) => setForm({ ...form, postalCode: e.target.value })} placeholder={t("checkout.postalCode")} className={inputClass} />
-                  <input required readonly name="country" value="Türkiye" placeholder="Türkiye" className={`${inputClass} opacity-60`} />
+                  <input required readOnly name="country" value={t("checkout.countryValue")} placeholder={t("checkout.countryValue")} className={`${inputClass} opacity-60`} />
                   
                   <label className="sm:col-span-2 flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
                     <input
@@ -424,7 +424,7 @@ const Checkout = () => {
             </div>
 
             <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
-              <h2 className="font-bebas text-2xl tracking-wide text-foreground mb-4">Kargo Seçenekleri</h2>
+              <h2 className="font-bebas text-2xl tracking-wide text-foreground mb-4">{t("checkout.shippingOptions")}</h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {([
                   { value: "yurtici", name: "Yurtiçi Kargo" },
@@ -448,7 +448,7 @@ const Checkout = () => {
                       className="sr-only"
                     />
                     <span className="text-xs uppercase tracking-widest font-semibold">{c.name}</span>
-                    <span className="text-[10px] text-muted-foreground mt-1">Standart Teslimat</span>
+                    <span className="text-[10px] text-muted-foreground mt-1">{t("checkout.standardDelivery")}</span>
                   </label>
                 ))}
               </div>
@@ -496,9 +496,12 @@ const Checkout = () => {
                     {totals.shipping === 0 ? t("cart.free") : formatPrice(totals.shipping)}
                   </span>
                 </div>
-                <div className="border-t border-border pt-3 mt-3 flex justify-between items-center">
-                  <span className="text-sm uppercase tracking-widest text-muted-foreground">{t("checkout.total")}</span>
-                  <span className="font-bebas text-3xl text-primary">{formatPrice(totals.total)}</span>
+                <div className="border-t border-border pt-3 mt-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm uppercase tracking-widest text-muted-foreground">{t("checkout.total")}</span>
+                    <span className="font-bebas text-3xl text-primary">{formatPrice(totals.total)}</span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground text-right mt-1">({t("common.vatIncluded")})</p>
                 </div>
               </div>
 
@@ -509,24 +512,46 @@ const Checkout = () => {
                   onChange={(e) => setTermsAgreed(e.target.checked)}
                   className="accent-primary rounded mt-0.5"
                 />
-                <span>
-                  <button
-                    type="button"
-                    onClick={() => setShowTermsModal("terms")}
-                    className="text-primary hover:underline font-semibold"
-                  >
-                    Mesafeli Satış Sözleşmesi
-                  </button>
-                  {" "}ve{" "}
-                  <button
-                    type="button"
-                    onClick={() => setShowTermsModal("pre-info")}
-                    className="text-primary hover:underline font-semibold"
-                  >
-                    Ön Bilgilendirme Formu
-                  </button>
-                  'nu okudum, kabul ediyorum.
-                </span>
+                {language === "en" ? (
+                  <span>
+                    I have read and accept the{" "}
+                    <button
+                      type="button"
+                      onClick={() => setShowTermsModal("terms")}
+                      className="text-primary hover:underline font-semibold"
+                    >
+                      Distance Sales Agreement
+                    </button>
+                    {" "}and{" "}
+                    <button
+                      type="button"
+                      onClick={() => setShowTermsModal("pre-info")}
+                      className="text-primary hover:underline font-semibold"
+                    >
+                      Pre-Information Form
+                    </button>
+                    .
+                  </span>
+                ) : (
+                  <span>
+                    <button
+                      type="button"
+                      onClick={() => setShowTermsModal("terms")}
+                      className="text-primary hover:underline font-semibold"
+                    >
+                      Mesafeli Satış Sözleşmesi
+                    </button>
+                    {" "}ve{" "}
+                    <button
+                      type="button"
+                      onClick={() => setShowTermsModal("pre-info")}
+                      className="text-primary hover:underline font-semibold"
+                    >
+                      Ön Bilgilendirme Formu
+                    </button>
+                    'nu okudum, kabul ediyorum.
+                  </span>
+                )}
               </label>
 
               <button
@@ -538,7 +563,7 @@ const Checkout = () => {
                 {loading ? t("checkout.processing") : t("checkout.placeOrder")}
               </button>
               <p className="text-[10px] text-center text-muted-foreground">
-                Ödemeyi onayladığınızda iyzico'nun güvenli ödeme sayfasına yönlendirileceksiniz.
+                {t("checkout.secureNote")}
               </p>
             </div>
           </div>
@@ -551,7 +576,7 @@ const Checkout = () => {
           <div className="bg-card border border-border rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
             <div className="p-6 border-b border-border flex items-center justify-between">
               <h2 className="font-bebas text-2xl tracking-wide text-foreground">
-                {showTermsModal === "pre-info" ? "Ön Bilgilendirme Formu" : "Mesafeli Satış Sözleşmesi"}
+                {showTermsModal === "pre-info" ? t("checkout.preInfoModalTitle") : t("checkout.termsModalTitle")}
               </h2>
               <button
                 type="button"

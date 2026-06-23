@@ -40,6 +40,7 @@ const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
 const AdminCoupons = lazy(() => import("./pages/admin/AdminCoupons"));
 import ErrorBoundary from "./components/ErrorBoundary";
 import CookieBanner from "./components/CookieBanner";
+import WhatsAppBubble from "./components/WhatsAppBubble";
 
 const queryClient = new QueryClient();
 
@@ -94,6 +95,7 @@ const App = () => (
                     </Routes>
                     </Suspense>
                     <CookieBanner />
+                    <WhatsAppBubble />
                   </BrowserRouter>
                 </ErrorBoundary>
               </CartProvider>

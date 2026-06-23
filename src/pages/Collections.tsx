@@ -10,7 +10,7 @@ const Collections = () => {
 
   return (
     <>
-      <SEO title="Collections — ComicWall" description="Shop themed poster sets and save." canonicalUrl="/collections" />
+      <SEO title={`${t("collections.seo.title")}`} description={t("collections.seo.description")} canonicalUrl="/collections" />
       <SiteHeader />
       <main className="pt-[var(--header-h)] max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-20">
         <div className="mb-10">

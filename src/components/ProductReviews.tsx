@@ -25,7 +25,7 @@ interface ProductReviewsProps {
 
 const ProductReviews = ({ productId }: ProductReviewsProps) => {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [reviews, setReviews] = useState<ReviewRow[]>([]);
   const [displayNames, setDisplayNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -52,7 +52,7 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
           .in("user_id", ids);
         const map: Record<string, string> = {};
         (profiles || []).forEach((p: { user_id: string; display_name: string | null }) => {
-          map[p.user_id] = p.display_name || "Anonim";
+          map[p.user_id] = p.display_name || t("common.anonymous");
         });
         setDisplayNames(map);
       }
@@ -111,7 +111,7 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
       toast({ title: t("product.reviewSaved") });
       await load();
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Yorum kaydedilemedi";
+      const message = err instanceof Error ? err.message : t("product.reviewSaveError");
       toast({ title: message, variant: "destructive" });
     } finally {
       setSaving(false);
@@ -122,7 +122,7 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
     if (!myReview) return;
     const { error } = await supabase.from("product_reviews").delete().eq("id", myReview.id);
     if (error) {
-      toast({ title: "Silme başarısız", variant: "destructive" });
+      toast({ title: t("product.reviewDeleteError"), variant: "destructive" });
       return;
     }
     toast({ title: t("product.reviewDeleted") });
@@ -213,7 +213,7 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
 
         <div className="lg:col-span-2 space-y-3">
           {loading ? (
-            <p className="text-sm text-muted-foreground">Yorumlar yükleniyor...</p>
+            <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
           ) : reviews.length === 0 ? (
             <div className="bg-card border border-border rounded-2xl p-8 text-center">
               <p className="text-sm text-muted-foreground">{t("product.noReviews")}</p>
@@ -231,7 +231,7 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <StarRating value={r.rating} size="sm" readOnly />
-                      <span className="text-sm font-semibold text-foreground">{displayNames[r.user_id] || "Anonim"}</span>
+                      <span className="text-sm font-semibold text-foreground">{displayNames[r.user_id] || t("common.anonymous")}</span>
                       {r.is_verified_purchase && (
                         <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest text-accent bg-accent/10 px-1.5 py-0.5 rounded">
                           <BadgeCheck className="w-3 h-3" /> {t("product.verifiedPurchase")}
@@ -239,7 +239,7 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {new Date(r.created_at).toLocaleDateString("tr-TR", {
+                      {new Date(r.created_at).toLocaleDateString(language === "en" ? "en-US" : "tr-TR", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",

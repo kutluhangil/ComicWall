@@ -1,4 +1,5 @@
 import { Star } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface StarRatingProps {
   value: number;
@@ -15,6 +16,7 @@ const sizeMap = {
 };
 
 const StarRating = ({ value, max = 5, size = "md", onChange, readOnly }: StarRatingProps) => {
+  const { language } = useLanguage();
   const cls = sizeMap[size];
   const interactive = !readOnly && typeof onChange === "function";
 
@@ -34,7 +36,7 @@ const StarRating = ({ value, max = 5, size = "md", onChange, readOnly }: StarRat
             key={i}
             type="button"
             onClick={() => onChange?.(idx)}
-            aria-label={`${idx} yıldız`}
+            aria-label={language === "en" ? `${idx} stars` : `${idx} yıldız`}
             className="hover:scale-110 transition-transform"
           >
             {StarEl}

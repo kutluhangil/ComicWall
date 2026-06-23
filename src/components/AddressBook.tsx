@@ -54,7 +54,7 @@ interface AddressBookProps {
 
 const AddressBook = ({ selectable = false, selectedId, onSelect }: AddressBookProps) => {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
@@ -136,7 +136,7 @@ const AddressBook = ({ selectable = false, selectedId, onSelect }: AddressBookPr
     if (editing) {
       const { error } = await supabase.from("addresses").update(payload).eq("id", editing);
       if (error) {
-        toast({ title: "Adres güncellenemedi", variant: "destructive" });
+        toast({ title: t("profile.addressSaveError"), variant: "destructive" });
         return;
       }
     } else {
@@ -145,7 +145,7 @@ const AddressBook = ({ selectable = false, selectedId, onSelect }: AddressBookPr
         is_default: addresses.length === 0,
       });
       if (error) {
-        toast({ title: "Adres eklenemedi", variant: "destructive" });
+        toast({ title: t("profile.addressSaveError"), variant: "destructive" });
         return;
       }
     }
@@ -158,7 +158,7 @@ const AddressBook = ({ selectable = false, selectedId, onSelect }: AddressBookPr
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("addresses").delete().eq("id", id);
     if (error) {
-      toast({ title: "Adres silinemedi", variant: "destructive" });
+      toast({ title: t("profile.addressDeleteError"), variant: "destructive" });
       return;
     }
     toast({ title: t("profile.addressDeleted") });
@@ -173,7 +173,7 @@ const AddressBook = ({ selectable = false, selectedId, onSelect }: AddressBookPr
   };
 
   if (loading) {
-    return <p className="text-sm text-muted-foreground">Yükleniyor...</p>;
+    return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
   }
 
   return (
@@ -215,7 +215,7 @@ const AddressBook = ({ selectable = false, selectedId, onSelect }: AddressBookPr
                 </p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-[9px] uppercase tracking-wider bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
-                    {a.invoice_type === "corporate" ? "Kurumsal Fatura" : "Bireysel Fatura"}
+                    {a.invoice_type === "corporate" ? t("checkout.invoiceCorporate") : t("checkout.invoiceIndividual")}
                   </span>
                   {a.invoice_type === "individual" && a.identity_number && (
                     <span className="text-[9px] font-mono text-muted-foreground">TC: {a.identity_number}</span>
@@ -307,7 +307,7 @@ const AddressBook = ({ selectable = false, selectedId, onSelect }: AddressBookPr
           </div>
           
           <div className="bg-muted/40 p-3.5 rounded-xl border border-border space-y-3">
-            <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Fatura Türü</p>
+            <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">{t("checkout.invoiceType")}</p>
             <div className="flex gap-4">
               <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer">
                 <input
@@ -317,7 +317,7 @@ const AddressBook = ({ selectable = false, selectedId, onSelect }: AddressBookPr
                   onChange={() => setForm({ ...form, invoice_type: "individual" })}
                   className="accent-primary"
                 />
-                Bireysel
+                {t("checkout.invoiceIndividual")}
               </label>
               <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer">
                 <input
@@ -327,7 +327,7 @@ const AddressBook = ({ selectable = false, selectedId, onSelect }: AddressBookPr
                   onChange={() => setForm({ ...form, invoice_type: "corporate" })}
                   className="accent-primary"
                 />
-                Kurumsal
+                {t("checkout.invoiceCorporate")}
               </label>
             </div>
             
@@ -336,7 +336,7 @@ const AddressBook = ({ selectable = false, selectedId, onSelect }: AddressBookPr
                 required
                 maxLength={11}
                 pattern="[0-9]{11}"
-                placeholder="T.C. Kimlik Numarası"
+                placeholder={t("checkout.idNumberPlaceholder")}
                 value={form.identity_number}
                 onChange={(e) => setForm({ ...form, identity_number: e.target.value.replace(/\D/g, "") })}
                 className={inputClass}
@@ -345,7 +345,7 @@ const AddressBook = ({ selectable = false, selectedId, onSelect }: AddressBookPr
               <div className="space-y-2">
                 <input
                   required
-                  placeholder="Firma Ünvanı"
+                  placeholder={t("checkout.companyNamePlaceholder")}
                   value={form.company_name}
                   onChange={(e) => setForm({ ...form, company_name: e.target.value })}
                   className={inputClass}
@@ -353,7 +353,7 @@ const AddressBook = ({ selectable = false, selectedId, onSelect }: AddressBookPr
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     required
-                    placeholder="Vergi Dairesi"
+                    placeholder={t("checkout.taxOfficePlaceholder")}
                     value={form.tax_office}
                     onChange={(e) => setForm({ ...form, tax_office: e.target.value })}
                     className={inputClass}
@@ -362,7 +362,7 @@ const AddressBook = ({ selectable = false, selectedId, onSelect }: AddressBookPr
                     required
                     maxLength={10}
                     pattern="[0-9]{10}"
-                    placeholder="Vergi Numarası"
+                    placeholder={t("checkout.taxNumberPlaceholder")}
                     value={form.tax_number}
                     onChange={(e) => setForm({ ...form, tax_number: e.target.value.replace(/\D/g, "") })}
                     className={inputClass}
@@ -381,7 +381,7 @@ const AddressBook = ({ selectable = false, selectedId, onSelect }: AddressBookPr
               onChange={(e) => setForm({ ...form, city: e.target.value, district: "" })}
               className={inputClass}
             >
-              <option value="">İl Seçin</option>
+              <option value="">{t("checkout.selectCity")}</option>
               {Object.keys(TR_CITIES).map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
@@ -394,7 +394,7 @@ const AddressBook = ({ selectable = false, selectedId, onSelect }: AddressBookPr
               disabled={!form.city}
               className={inputClass}
             >
-              <option value="">İlçe Seçin</option>
+              <option value="">{t("checkout.selectDistrict")}</option>
               {form.city && TR_CITIES[form.city]?.map((d) => (
                 <option key={d} value={d}>{d}</option>
               ))}
@@ -403,14 +403,14 @@ const AddressBook = ({ selectable = false, selectedId, onSelect }: AddressBookPr
 
           <div className="grid grid-cols-2 gap-2">
             <input required placeholder={t("checkout.postalCode")} value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} className={inputClass} />
-            <input required readonly placeholder="Türkiye" value="Türkiye" className={`${inputClass} opacity-60`} />
+            <input required readOnly placeholder={t("checkout.countryValue")} value={t("checkout.countryValue")} className={`${inputClass} opacity-60`} />
           </div>
           <div className="flex gap-2">
             <button type="submit" className="flex-1 bg-primary text-primary-foreground px-4 py-2.5 text-xs uppercase tracking-widest font-bold rounded-xl hover:bg-primary/90 transition-colors">
               {t("profile.save")}
             </button>
             <button type="button" onClick={resetForm} className="bg-muted text-foreground px-4 py-2.5 text-xs uppercase tracking-widest font-bold rounded-xl hover:bg-muted/70 transition-colors">
-              İptal
+              {t("common.cancel")}
             </button>
           </div>
         </form>

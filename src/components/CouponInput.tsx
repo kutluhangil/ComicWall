@@ -11,7 +11,7 @@ interface CouponInputProps {
 }
 
 const CouponInput = ({ subtotal }: CouponInputProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { coupon, applyCoupon, removeCoupon } = useCart();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -82,9 +82,9 @@ const CouponInput = ({ subtotal }: CouponInputProps) => {
           <div className="min-w-0">
             <p className="text-xs font-bold text-primary truncate">{coupon.code}</p>
             <p className="text-[10px] text-muted-foreground">
-              {coupon.discountType === "percent" && `%${coupon.discountValue} indirim`}
-              {coupon.discountType === "fixed" && `${formatPrice(coupon.discountValue)} indirim`}
-              {coupon.discountType === "free_shipping" && "Ücretsiz kargo"}
+              {coupon.discountType === "percent" && t("cart.coupon.percent").replace("{value}", coupon.discountValue.toString())}
+              {coupon.discountType === "fixed" && t("cart.coupon.fixed").replace("{value}", formatPrice(coupon.discountValue))}
+              {coupon.discountType === "free_shipping" && t("cart.coupon.freeShipping")}
             </p>
           </div>
         </div>
@@ -94,7 +94,7 @@ const CouponInput = ({ subtotal }: CouponInputProps) => {
             removeCoupon();
             toast({ title: t("cart.couponRemoved") });
           }}
-          aria-label="Kuponu kaldır"
+          aria-label={t("cart.coupon.remove")}
           className="text-muted-foreground hover:text-destructive flex-shrink-0"
         >
           <X className="w-4 h-4" />
