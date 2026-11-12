@@ -1,132 +1,76 @@
 <div align="center">
 
-<br />
+<img src="docs/media/hero.svg" alt="ComicWall — premium comic-style art posters" width="100%">
 
-<img src="https://img.shields.io/badge/ComicWall-v1.0-6366f1?style=for-the-badge&logoColor=white" alt="version" />
-<img src="https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&logo=react&logoColor=black" alt="react" />
-<img src="https://img.shields.io/badge/TypeScript-3178c6?style=for-the-badge&logo=typescript&logoColor=white" alt="typescript" />
-<img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="tailwind" />
-<img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="supabase" />
+<p>
+  <a href="https://comicwall.vercel.app"><img alt="Live" src="https://img.shields.io/badge/live-visit%20the%20shop-ff3d6e?style=for-the-badge&labelColor=120610"></a>
+  <img alt="React" src="https://img.shields.io/badge/React-shadcn%2Fui-ffd23f?style=for-the-badge&labelColor=120610">
+  <img alt="Supabase" src="https://img.shields.io/badge/Supabase-auth%20%2B%20edge-3dc8ff?style=for-the-badge&labelColor=120610">
+  <img alt="Languages" src="https://img.shields.io/badge/UI-TR%20%2F%20EN-ff3d6e?style=for-the-badge&labelColor=120610">
+</p>
 
-<br /><br />
+<p><em>An e-commerce store for premium, comic-style art posters.<br>
+A full shopping flow wrapped in punchy motion, built to turn a wall into a superpower.</em></p>
 
-```
-  _______  _______  __   __  ___   _______  __   __  _______  ___      ___     
- |       ||       ||  |_|  ||   | |       ||  | |  ||       ||   |    |   |    
- |       ||   _   ||       ||   | |       ||  |_|  ||   _   ||   |    |   |    
- |       ||  | |  ||       ||   | |       ||       ||  | |  ||   |    |   |    
- |      _||  |_|  ||       ||   | |      _||       ||  |_|  ||   |___ |   |___ 
- |     |_ |       || ||_|| ||   | |     |_ |   _   ||       ||       ||       |
- |_______||_______||_|   |_||___| |_______||__| |__||_______||_______||_______|
-```
-
-### **ComicWall** — Premium Comic-Style Art Posters.
-
-[Live Demo](#) · [Shop](#) · [Contact](#)
+<a href="https://comicwall.vercel.app"><img src="public/og-image.jpg" alt="ComicWall" width="100%"></a>
 
 </div>
 
----
+<img src="docs/media/divider.svg" width="100%" alt="">
 
-## ✦ Overview
+## Features
 
-ComicWall is a modern e-commerce platform dedicated to high-quality, AI-generated premium comic-style posters. Built with cutting-edge web technologies, it offers a seamless shopping experience with cross-platform optimization, precise responsive layouts, and fluid animations. 
+| | |
+|---|---|
+| **Immersive UI** | Framer Motion animations, particle effects and a bold comic look. |
+| **Shopping flow** | Catalogue, cart, wishlist, checkout and order history. |
+| **Payments** | iyzico checkout with callbacks, plus refund requests and processing. |
+| **Notifications** | Shipping and contact emails sent from Supabase Edge Functions. |
+| **Accounts** | Sign-up, profiles and past orders on Supabase Auth. |
+| **Themes and languages** | Dark and light modes, Turkish and English. |
+| **Fast** | A Vite SPA with React Query caching. |
 
-Every poster and interaction on this platform is designed to turn your wall into a superpower.
+<img src="docs/media/divider.svg" width="100%" alt="">
 
----
+## How it fits together
 
-## ⚡ Key Features
-
-| Feature | Description |
-|--------|-------------|
-| 🎨 **Immersive UI/UX** | Fluid animations with Framer Motion, dynamic particle effects, and modern interface design. |
-| 🛒 **E-commerce Core** | Complete shopping flow including cart, checkout, wishlist, and past orders tracking. |
-| 🌙 **Theme Support** | Seamless Dark / Light mode implemented natively via Next Themes and Tailwind. |
-| 🌐 **Localization** | Multi-language support built-in for a wider audience reach (TR/EN). |
-| 🔐 **Authentication** | Secure user authentication and profile management powered by Supabase. |
-| 🚀 **High Performance** | Vite bundled SPA with optimized React Query data fetching. |
-
----
-
-## 🛠️ Tech Stack
-
-```
-Core              →  React 18 · TypeScript · Vite
-Styling           →  Tailwind CSS · shadcn/ui · Lucide React (Icons)
-Animations        →  Framer Motion
-State & Data      →  React Query · Context API
-Backend & Auth    →  Supabase
-Routing           →  React Router v6
+```mermaid
+flowchart LR
+  UI[React SPA · shadcn/ui] --> Q[React Query]
+  Q --> DB[(Supabase Postgres · RLS)]
+  UI --> AUTH[Supabase Auth]
+  UI --> PAY[iyzico-create-payment] --> IYZ[iyzico]
+  IYZ --> CB[iyzico-callback] --> DB
+  DB --> MAIL[send-shipping-notification · send-contact-email]
+  UI --> RF[request-refund → process-refund]
 ```
 
----
+<img src="docs/media/divider.svg" width="100%" alt="">
 
-## 🚀 Getting Started
+## Türkçe özet
 
-### Prerequisites
+**ComicWall**, yüksek kaliteli çizgi roman tarzı posterler satan modern bir e-ticaret sitesi. Ürün kataloğu, sepet, favoriler, ödeme ve sipariş geçmişi tam bir alışveriş akışı olarak çalışıyor; ödemeler iyzico ile alınıyor, kargo ve iletişim e-postaları Supabase Edge Function'larından gidiyor. Açık/koyu tema ve Türkçe/İngilizce arayüzü var.
 
-- Node.js `>= 18`
-- npm or bun
+<img src="docs/media/divider.svg" width="100%" alt="">
 
-### Local Development Setup
+## Development
 
-```bash
-# Clone the repository
-git clone https://github.com/kutluhangil/ComicWall.git
-cd ComicWall
-
-# Install dependencies (using npm or bun)
+```sh
 npm install
-# or
-bun install
-
-# Add your environment variables (If applicable)
-# cp .env.example .env
-
-# Start the Vite development server (runs typically on http://localhost:8080)
-npm run dev
+npm run dev       # http://localhost:8080
+npm run build
+supabase functions deploy   # payments, refunds and emails
 ```
 
----
-
-## 📐 Project Structure
-
 ```
-ComicWall/
-├── public/                  # Static assets (images, fonts, favicons)
-├── src/
-│   ├── assets/              # Local images, specific poster graphics
-│   ├── components/          # Reusable UI components (shadcn/ui & custom blocks)
-│   ├── context/             # Global React Contexts (Cart, Auth, Theme, Language, Wishlist)
-│   ├── data/                # System config or mocked catalog definitions
-│   ├── hooks/               # Custom React hooks for logic separation
-│   ├── lib/                 # Utility functions (price formatting, system tools)
-│   ├── pages/               # Route components (Home, Shop, Checkout, Profile, etc.)
-│   └── services/            # API clients and Supabase backend logic
-├── supabase/                # Supabase configurations and schema details
-├── vite.config.ts           # Configuration for Vite bundler
-└── package.json
+src/pages/          shop, product, cart, checkout, orders, account, admin
+src/components/     cards, galleries, cart drawer, effects
+src/integrations/   Supabase client and types
+supabase/           migrations and Edge Functions
 ```
-
----
-
-## 🤝 Contact
-
-Feel free to reach out to me for opportunities or collaborations!
-
-* Email: [kutluhangil@gmail.com](mailto:kutluhangil@gmail.com)
-* LinkedIn: [Kutluhan Gül](https://www.linkedin.com/in/kutluhan-gul)
-* GitHub: [kutluhangil](https://github.com/kutluhangil)
-
----
 
 <div align="center">
-
-Built with ❤️ by [kutluhangil](https://github.com/kutluhangil)
-
-<br />
-
-*If you like this project, consider giving it a ⭐*
-
+<br>
+<a href="https://github.com/kutluhangil"><img src="docs/media/signature.svg" width="100%" alt="Built by kutluhangil"></a>
+<sub>Pow. Your wall just levelled up.</sub>
 </div>
